@@ -1,18 +1,7 @@
 import React, { createContext, useReducer } from "react";
 import produce from "immer";
 import { useContext } from "react";
-
-// export interface AuthState {
-//   username?: string;
-//   password?: string;
-//   confirm_password?: string;
-//   first_name?: string;
-//   last_name?: string;
-//   loading?: boolean;
-//   error?: any;
-//   token?: any;
-//   refresh_token?: any;
-// }
+import { AUTH_ACTIONS, Dispatch } from "./types";
 
 export const initialState: any = {
   username: "",
@@ -26,53 +15,50 @@ export const initialState: any = {
   refresh_token: "",
 };
 
-export interface AuthDispatch {
-  type: string;
-  payload: any;
-}
+const AuthContext = createContext(initialState);
+export const useAuthContext = () => {
+  return useContext(AuthContext);
+};
 
-const authReducer = (state: any, action: AuthDispatch) => {
+const authReducer = (state: any, action: Dispatch) => {
   switch (action.type) {
-    case "LOGIN":
+    case AUTH_ACTIONS.LOGIN:
       state.error = "";
       state.loading = true;
       break;
-    case "SIGNUP":
+    case AUTH_ACTIONS.SIGNUP:
       state.error = "";
       state.loading = true;
       break;
-    case "FIELD":
+    case AUTH_ACTIONS.FIELD:
       state[action.payload.field] = action.payload.value;
       state.error = "";
       break;
-    case "LOGIN_SUCCESS":
+    case AUTH_ACTIONS.LOGIN_SUCCESS:
       state.error = "";
       state.loading = false;
       state.token = action.payload.token;
       state.refresh_token = action.payload.refresh_token;
       break;
-    case "LOGIN_FAILED":
+    case AUTH_ACTIONS.LOGIN_FAILED:
       state.error = action.payload;
       state.loading = false;
       break;
-    case "SIGNUP":
+    case AUTH_ACTIONS.SIGNUP:
       state.error = "";
       state.loading = true;
       break;
-    case "SIGNUP_SUCCESS":
+    case AUTH_ACTIONS.SIGNUP_SUCCESS:
       state.error = "";
       state.loading = false;
       break;
-    case "SIGNUP_FAILED":
-      console.log(action.payload);
+    case AUTH_ACTIONS.SIGNUP_FAILED:
       state.error = action.payload;
       state.loading = false;
       break;
   }
   console.log(action);
 };
-
-const AuthContext = createContext(initialState);
 
 const AuthStateProvider: React.FC<any> = (props) => {
   const [state, dispatch] = useReducer(produce(authReducer), initialState);
@@ -85,7 +71,3 @@ const AuthStateProvider: React.FC<any> = (props) => {
 };
 
 export default AuthStateProvider;
-
-export const useAuthContext = () => {
-  return useContext(AuthContext);
-};

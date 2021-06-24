@@ -5,16 +5,18 @@ import Layout from "./layout/Layout";
 
 import AuthContextProvider from "./store/auth";
 
-export const App = () => (
-  <ChakraProvider theme={theme}>
-    <AuthContextProvider>
-      {/* <Box textAlign="center" fontSize="xl"> */}
-      {/* <Grid minH="100vh" p={0}> */}
-      {/* <VStack spacing={8}> */}
-      <Layout />
-      {/* </VStack> */}
-      {/* </Grid> */}
-      {/* </Box> */}
-    </AuthContextProvider>
-  </ChakraProvider>
-);
+export const App = () => {
+  return (
+    <ChakraProvider theme={theme}>
+      <AuthContextProvider>
+        {/* <Box textAlign="center" fontSize="xl"> */}
+        {/* <Grid minH="100vh" p={0}> */}
+        {/* <VStack spacing={8}> */}
+        <Layout />
+        {/* </VStack> */}
+        {/* </Grid> */}
+        {/* </Box> */}
+      </AuthContextProvider>
+    </ChakraProvider>
+  );
+};

@@ -16,6 +16,7 @@ import {
 import api from "../controller/api_client";
 import { useAuthContext } from "../store/auth";
 import { useHistory } from "react-router-dom";
+import { AUTH_ACTIONS } from "../store/types";
 
 const AuthModule = () => {
   const [mode, setMode] = useState("login");
@@ -102,7 +103,7 @@ const LoginCard: React.FC<{
       const { data } = res;
       console.log(data);
       props.dispatch({
-        type: "LOGIN_SUCCESS",
+        type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: {
           token: data.operation_token,
           refresh_token: data.refresh_token,
@@ -112,7 +113,7 @@ const LoginCard: React.FC<{
     } catch (err) {
       console.log(err.message);
       props.dispatch({
-        type: "LOGIN_FAILED",
+        type: AUTH_ACTIONS.LOGIN_FAILED,
         payload: err.message,
       });
     }
@@ -160,7 +161,7 @@ const LoginCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: { field: "username", value: e.currentTarget.value },
               })
             }
@@ -179,7 +180,7 @@ const LoginCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: { field: "password", value: e.currentTarget.value },
               })
             }
@@ -203,7 +204,7 @@ const LoginCard: React.FC<{
             boxShadow: "xl",
           }}
           onClick={() => {
-            props.dispatch({ type: "LOGIN" });
+            props.dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS });
             handleLogin();
           }}
         >
@@ -238,14 +239,14 @@ const SignupCard: React.FC<{
   const handleSignup = async () => {
     if (password != confirm_password) {
       return props.dispatch({
-        type: "SIGNUP_FAILED",
+        type: AUTH_ACTIONS.SIGNUP_FAILED,
         payload: "Passwords do not match.",
       });
     }
 
     if (!username || username.length < 5) {
       return props.dispatch({
-        type: "SIGNUP_FAILED",
+        type: AUTH_ACTIONS.SIGNUP_FAILED,
         payload: "Username must be at least 5 characters.",
       });
     }
@@ -260,13 +261,13 @@ const SignupCard: React.FC<{
       await api.signup({ first_name, last_name, username, password });
 
       props.dispatch({
-        type: "SIGNUP_SUCCESS",
+        type: AUTH_ACTIONS.SIGNUP_SUCCESS,
         payload: "Signup successful!",
       });
     } catch (err) {
       console.log(err.message);
       props.dispatch({
-        type: "SIGNUP_FAILED",
+        type: AUTH_ACTIONS.SIGNUP_FAILED,
         payload: err.message,
       });
     }
@@ -312,7 +313,7 @@ const SignupCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: { field: "first_name", value: e.currentTarget.value },
               })
             }
@@ -327,7 +328,7 @@ const SignupCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: { field: "last_name", value: e.currentTarget.value },
               })
             }
@@ -342,7 +343,7 @@ const SignupCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: { field: "username", value: e.currentTarget.value },
               })
             }
@@ -358,7 +359,7 @@ const SignupCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: { field: "password", value: e.currentTarget.value },
               })
             }
@@ -374,7 +375,7 @@ const SignupCard: React.FC<{
             }}
             onChange={(e) =>
               props.dispatch({
-                type: "FIELD",
+                type: AUTH_ACTIONS.FIELD,
                 payload: {
                   field: "confirm_password",
                   value: e.currentTarget.value,
@@ -403,7 +404,7 @@ const SignupCard: React.FC<{
             boxShadow: "xl",
           }}
           onClick={() => {
-            props.dispatch({ type: "SIGNUP" });
+            props.dispatch({ type: AUTH_ACTIONS.SIGNUP });
             handleSignup();
           }}
         >
