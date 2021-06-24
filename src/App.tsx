@@ -3,20 +3,17 @@ import { ChakraProvider, theme } from "@chakra-ui/react";
 import { ColorModeSwitcher } from "./ColorModeSwitcher";
 import Layout from "./layout/Layout";
 
-import AuthContextProvider from "./store/auth";
+import AuthStoreProvider from "./store/auth";
+import PostsStoreProvider from "./store/posts";
 
 export const App = () => {
   return (
     <ChakraProvider theme={theme}>
-      <AuthContextProvider>
-        {/* <Box textAlign="center" fontSize="xl"> */}
-        {/* <Grid minH="100vh" p={0}> */}
-        {/* <VStack spacing={8}> */}
-        <Layout />
-        {/* </VStack> */}
-        {/* </Grid> */}
-        {/* </Box> */}
-      </AuthContextProvider>
+      <AuthStoreProvider>
+        <PostsStoreProvider>
+          <Layout />
+        </PostsStoreProvider>
+      </AuthStoreProvider>
     </ChakraProvider>
   );
 };

@@ -60,7 +60,7 @@ const authReducer = (state: any, action: Dispatch) => {
   console.log(action);
 };
 
-const AuthStateProvider: React.FC<any> = (props) => {
+const AuthStoreProvider: React.FC<any> = (props) => {
   const [state, dispatch] = useReducer(produce(authReducer), initialState);
 
   return (
@@ -70,4 +70,4 @@ const AuthStateProvider: React.FC<any> = (props) => {
   );
 };
 
-export default AuthStateProvider;
+export default AuthStoreProvider;

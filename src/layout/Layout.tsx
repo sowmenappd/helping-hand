@@ -11,7 +11,7 @@ const Layout = () => {
         <Route path="/" exact>
           <Authentication />
         </Route>
-        <Route path="/h">
+        <Route path="/h" exact>
           <Main />
         </Route>
       </Switch>

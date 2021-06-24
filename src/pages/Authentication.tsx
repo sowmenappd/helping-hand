@@ -9,7 +9,7 @@ const Authentication = () => {
   const history = useHistory();
 
   const authState = useAuthContext();
-  if (authState.token !== "") {
+  if (authState.token) {
     history.push("/h");
   }
   return (

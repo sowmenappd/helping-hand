@@ -204,7 +204,7 @@ const LoginCard: React.FC<{
             boxShadow: "xl",
           }}
           onClick={() => {
-            props.dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS });
+            props.dispatch({ type: AUTH_ACTIONS.LOGIN });
             handleLogin();
           }}
         >
