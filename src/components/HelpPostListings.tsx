@@ -11,7 +11,7 @@ const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
   const { posts } = props;
   const [postType, setPostType] = useState("help");
 
-  const handlePostType = (type: "help" | "friends") => {
+  const handlePostType = (type: "help" | "social") => {
     setPostType(type);
   };
 
@@ -42,15 +42,16 @@ const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
         </Button>
         <Button
           rounded="3xl"
-          color={postType == "friends" ? "green.600" : ""}
-          bg={postType == "friends" ? "green.50" : ""}
-          onClick={() => handlePostType("friends")}
+          color={postType == "social" ? "green.600" : ""}
+          bg={postType == "social" ? "green.50" : ""}
+          onClick={() => handlePostType("social")}
         >
-          Friends
+          Social
         </Button>
       </HStack>
-      {posts.map(({ author, title, datetimeISO, description, tags }) => (
+      {posts.map(({ author, title, datetimeISO, description, tags }, i) => (
         <HelpPost
+          key={i}
           author={author}
           title={title}
           description={description}

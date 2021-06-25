@@ -35,17 +35,24 @@ const UserStatsCard: React.FC<Props> = (props) => {
       >
         <StatGroup>
           <Stack direction={["column", "row", "row"]}>
-            <Stat align="center" pt="5">
+            <Stat align="center" pt="5" px={4}>
               <StatLabel>Posts</StatLabel>
               <StatNumber>5</StatNumber>
             </Stat>
-            <Stat align="center">
-              <StatLabel fontSize="2xl">
+            <Stat
+              align="center"
+              justifyContent="center"
+              bg="gray.100"
+              borderRadius="xl"
+            >
+              <StatLabel fontSize="2xl" p={3}>
                 <b>Friends</b>
               </StatLabel>
-              <StatNumber fontSize="4xl">67</StatNumber>
+              <StatNumber fontSize="3xl" mt={-2} mb={1}>
+                67
+              </StatNumber>
             </Stat>
-            <Stat align="center" pt="5">
+            <Stat align="center" pt="5" px={4}>
               <StatLabel>
                 <b>Hands</b>
               </StatLabel>

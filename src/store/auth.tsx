@@ -4,8 +4,8 @@ import { useContext } from "react";
 import { AUTH_ACTIONS, Dispatch } from "./types";
 
 export const initialState: any = {
-  username: "",
-  password: "",
+  username: "sowmenr1",
+  password: "test1234",
   imgB64: "",
   confirm_password: "",
   first_name: "",
@@ -14,6 +14,7 @@ export const initialState: any = {
   error: "",
   token: "",
   refresh_token: "",
+  bio: "",
 };
 
 const AuthContext = createContext(initialState);
@@ -40,6 +41,11 @@ const authReducer = (state: any, action: Dispatch) => {
       state.loading = false;
       state.token = action.payload.token;
       state.refresh_token = action.payload.refresh_token;
+      state.username = action.payload.username;
+      state.first_name = action.payload.first_name;
+      state.last_name = action.payload.last_name;
+      state.bio = action.payload.bio;
+      state.imgB64 = action.payload.imgB64;
       break;
     case AUTH_ACTIONS.LOGIN_FAILED:
       state.error = action.payload;

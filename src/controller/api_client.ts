@@ -2,7 +2,7 @@ import client from "./http_client";
 
 const login: any = async ({ username, password }: any) => {
   try {
-    return client.post(
+    const res = await client.post(
       "/",
       {
         operation: "create_authentication_tokens",
@@ -16,6 +16,28 @@ const login: any = async ({ username, password }: any) => {
         },
       }
     );
+
+    const { operation_token: token, refresh_token } = res.data;
+    const userRes = await client.post(
+      "/",
+      {
+        operation: "search_by_value",
+        schema: "development",
+        table: "users",
+        search_attribute: "username",
+        search_value: username,
+        get_attributes: ["*"],
+      },
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const userObj = userRes.data[0];
+    const finalObj = { ...userObj, token, refresh_token };
+    return finalObj;
   } catch (err) {
     return Promise.reject(err);
   }

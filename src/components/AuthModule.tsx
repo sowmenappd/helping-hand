@@ -103,13 +103,10 @@ const LoginCard: React.FC<{
   const handleLogin = async () => {
     try {
       const res = await api.login({ username, password });
-      const { data } = res;
-      console.log(data);
       props.dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: {
-          token: data.operation_token,
-          refresh_token: data.refresh_token,
+          ...res,
         },
       });
       history.push("/h");

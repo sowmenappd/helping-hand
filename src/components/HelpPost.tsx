@@ -141,25 +141,22 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
               datetimeISO={new Date(datetimeISO)} //TODO: add date to post
             />
             <Box display="flex" flexDirection="row">
-              <div>
-                <IconButton
-                  aria-label="view-post"
-                  rounded="2xl"
-                  colorScheme="red"
-                  mr={2}
-                >
-                  <ReportIcon size={28} />
-                </IconButton>
-              </div>
-              <div>
-                <IconButton
-                  aria-label="view-post"
-                  rounded="2xl"
-                  colorScheme="twitter"
-                >
-                  <ForwardIcon size={28} />
-                </IconButton>
-              </div>
+              <IconButton
+                aria-label="view-post"
+                rounded="2xl"
+                color="red.400"
+                bgColor="transparent"
+              >
+                <ReportIcon size={28} />
+              </IconButton>
+              <IconButton
+                aria-label="view-post"
+                rounded="2xl"
+                color="blue.400"
+                bgColor="transparent"
+              >
+                <ForwardIcon size={28} />
+              </IconButton>
             </Box>
           </Box>
         </Box>

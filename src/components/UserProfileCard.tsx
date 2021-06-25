@@ -5,27 +5,34 @@ import {
   Box,
   Center,
   Text,
+  Image,
   Stack,
   Button,
-  Link,
   Badge,
   useColorModeValue,
 } from "@chakra-ui/react";
 
-interface UserProfileProps {
-  name: string;
-  username: string;
-  description: string;
-  tags: string[];
-  imgUrl?: string;
-}
+const TAG_COLORS = [
+  "green.100",
+  "orange.100",
+  "blue.100",
+  "red.100",
+  "purple.100",
+  "gray.100",
+  "pink.100",
+];
 
 interface Props {
-  user: UserProfileProps;
+  user: {
+    name: string;
+    username: string;
+    bio: string;
+    tags: string[];
+    imgB64: string;
+  };
 }
 
 const UserProfileCard: React.FC<Props> = (props) => {
-  const bg = useColorModeValue("gray.50", "gray.800");
   return (
     <Center py={6}>
       <Box
@@ -37,44 +44,79 @@ const UserProfileCard: React.FC<Props> = (props) => {
         p={6}
         textAlign={"center"}
       >
-        <Avatar
-          size={"xl"}
-          src={props.user.imgUrl}
-          alt={props.user.name}
-          mb={4}
-          pos={"relative"}
-          _after={{
-            content: '""',
-            w: 4,
-            h: 4,
-            bg: "green.300",
-            border: "2px solid white",
-            rounded: "full",
-            pos: "absolute",
-            bottom: 0,
-            right: 3,
-          }}
-        />
+        {props.user.imgB64 ? (
+          <Box display="flex" justifyContent="center">
+            <Image
+              src={props.user.imgB64}
+              boxSize="20"
+              w="20"
+              h="20"
+              _after={{
+                content: '""',
+                w: 6,
+                h: 6,
+                bg: "green.300",
+                border: "2px solid white",
+                rounded: "full",
+                pos: "absolute",
+                bottom: 0,
+                right: 1,
+                zIndex: 10,
+              }}
+            />
+          </Box>
+        ) : (
+          <Avatar
+            size={"xl"}
+            alt={props.user.name}
+            mb={4}
+            pos={"relative"}
+            _after={{
+              content: '""',
+              w: 4,
+              h: 4,
+              bg: "green.300",
+              border: "2px solid white",
+              rounded: "full",
+              pos: "absolute",
+              bottom: 0,
+              right: 2,
+            }}
+          />
+        )}
+
         <Heading fontSize={"2xl"} fontFamily={"body"}>
           {props.user.name}
         </Heading>
         <Text fontWeight={600} color={"gray.500"} mb={4}>
-          {props.user.username}
+          {"@" + props.user.username}
         </Text>
         <Text
           textAlign={"center"}
           color={useColorModeValue("gray.700", "gray.400")}
           px={3}
         >
-          {props.user.description}
+          {props.user.bio}
         </Text>
 
-        <Stack align={"center"} justify={"center"} direction={"row"} mt={6}>
-          {props.user.tags.map((t) => {
-            <Badge px={2} py={1} bg={bg} fontWeight={"400"} key={t}>
-              #{t}
-            </Badge>;
-          })}
+        <Stack direction={"row"} mt={6}>
+          <Box>
+            {props.user.tags.map((t, i) => {
+              return (
+                <Badge
+                  px={3}
+                  py={2}
+                  m={1}
+                  bg={TAG_COLORS[i % TAG_COLORS.length]}
+                  fontWeight={"bold"}
+                  key={t}
+                  rounded="2xl"
+                >
+                  #{t}
+                </Badge>
+              );
+            })}
+          </Box>
         </Stack>
 
         <Stack mt={4} direction={"row"} spacing={4}>
