@@ -2,6 +2,7 @@ import React from "react";
 import {
   Box,
   Center,
+  Stack,
   Stat,
   StatGroup,
   StatLabel,
@@ -33,22 +34,24 @@ const UserStatsCard: React.FC<Props> = (props) => {
         textAlign={"center"}
       >
         <StatGroup>
-          <Stat align="center" pt="5">
-            <StatLabel>Posts</StatLabel>
-            <StatNumber>5</StatNumber>
-          </Stat>
-          <Stat align="center">
-            <StatLabel fontSize="2xl">
-              <b>Friends</b>
-            </StatLabel>
-            <StatNumber fontSize="4xl">67</StatNumber>
-          </Stat>
-          <Stat align="center" pt="5">
-            <StatLabel>
-              <b>Hands</b>
-            </StatLabel>
-            <StatNumber>23</StatNumber>
-          </Stat>
+          <Stack direction={["column", "row", "row"]}>
+            <Stat align="center" pt="5">
+              <StatLabel>Posts</StatLabel>
+              <StatNumber>5</StatNumber>
+            </Stat>
+            <Stat align="center">
+              <StatLabel fontSize="2xl">
+                <b>Friends</b>
+              </StatLabel>
+              <StatNumber fontSize="4xl">67</StatNumber>
+            </Stat>
+            <Stat align="center" pt="5">
+              <StatLabel>
+                <b>Hands</b>
+              </StatLabel>
+              <StatNumber>23</StatNumber>
+            </Stat>
+          </Stack>
         </StatGroup>
       </Box>
     </Center>
