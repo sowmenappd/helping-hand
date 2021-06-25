@@ -11,6 +11,10 @@ client.interceptors.response.use(
       return Promise.reject({
         message: "Invalid credentials. Please try again.",
       });
+    } else if (err.response.status >= 500 && err.response.status <= 599) {
+      return Promise.reject({
+        message: "Cannot contact server. Please try again.",
+      });
     }
     return Promise.reject(err);
   }

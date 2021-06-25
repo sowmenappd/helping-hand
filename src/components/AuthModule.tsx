@@ -203,10 +203,12 @@ const LoginCard: React.FC<{
             bgGradient: "linear(to-r, red.400,pink.400)",
             boxShadow: "xl",
           }}
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
             props.dispatch({ type: AUTH_ACTIONS.LOGIN });
             handleLogin();
           }}
+          type="submit"
         >
           Login
         </Button>
@@ -403,7 +405,9 @@ const SignupCard: React.FC<{
             bgGradient: "linear(to-r, red.400,pink.400)",
             boxShadow: "xl",
           }}
-          onClick={() => {
+          type={"submit"}
+          onClick={(e) => {
+            e.preventDefault();
             props.dispatch({ type: AUTH_ACTIONS.SIGNUP });
             handleSignup();
           }}
