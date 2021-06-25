@@ -14,11 +14,10 @@ import {
   Link,
   Image,
 } from "@chakra-ui/react";
-import api from "../controller/api_client";
+import authController from "../controller/auth";
 import { useAuthContext } from "../store/auth";
 import { useHistory } from "react-router-dom";
 import { AUTH_ACTIONS } from "../store/types";
-import { getBase64 } from "../util/image_converter";
 import ImageUploader from "./ImageUploader";
 
 const AuthModule = () => {
@@ -102,7 +101,7 @@ const LoginCard: React.FC<{
 
   const handleLogin = async () => {
     try {
-      const res = await api.login({ username, password });
+      const res = await authController.login({ username, password });
       props.dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: {
@@ -253,7 +252,13 @@ const SignupCard: React.FC<{
     }
 
     try {
-      await api.signup({ first_name, last_name, username, password, imgB64 });
+      await authController.signup({
+        first_name,
+        last_name,
+        username,
+        password,
+        imgB64,
+      });
 
       props.dispatch({
         type: AUTH_ACTIONS.SIGNUP_SUCCESS,
