@@ -17,6 +17,15 @@ class PostController {
 
     return db.executeSQLQuery(query, config);
   }
+
+  public async addPost(post: any, token: string) {
+    console.log(post);
+    return db.addOne("posts", post, {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+  }
 }
 
 export default new PostController();

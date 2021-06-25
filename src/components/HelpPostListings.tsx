@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { HStack, VStack, Heading, Button, Box } from "@chakra-ui/react";
 
-import HelpPost, { HelpPostProps } from "./HelpPost";
+import HelpPost from "./HelpPost";
 import SearchSkeleton from "./SearchSkeleton";
 import { POST_TYPE, usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
@@ -54,34 +54,15 @@ const HelpPostListings: React.FC = (props) => {
         </span>
         Right now
       </Heading>
-      <HStack pl="8" pt="4">
-        <Button
-          rounded="3xl"
-          color={state.currentPostsType == POST_TYPE.HELP ? "green.600" : ""}
-          bg={state.currentPostsType == POST_TYPE.HELP ? "green.50" : ""}
-          onClick={() =>
-            dispatch({
-              type: POST_ACTIONS.TOGGLE_TYPE,
-              payload: POST_TYPE.HELP,
-            })
-          }
-        >
-          Help
-        </Button>
-        <Button
-          rounded="3xl"
-          color={state.currentPostsType == POST_TYPE.SOCIAL ? "green.600" : ""}
-          bg={state.currentPostsType == POST_TYPE.SOCIAL ? "green.50" : ""}
-          onClick={() =>
-            dispatch({
-              type: POST_ACTIONS.TOGGLE_TYPE,
-              payload: POST_TYPE.SOCIAL,
-            })
-          }
-        >
-          Social
-        </Button>
-      </HStack>
+      <PostTypeSelector
+        type={state.currentPostsType}
+        dispatch={(type: string) =>
+          dispatch({
+            type: POST_ACTIONS.TOGGLE_TYPE,
+            payload: type,
+          })
+        }
+      />
       <Box w={["100%", "xl", "xl", "2xl", "4xl"]}>
         {loading ? (
           <SearchSkeleton loading={true} />
@@ -106,5 +87,29 @@ const HelpPostListings: React.FC = (props) => {
     </VStack>
   );
 };
+
+export const PostTypeSelector: React.FC<{ type: string; dispatch: any }> = ({
+  type,
+  dispatch,
+}) => (
+  <HStack pl="8" pt="4">
+    <Button
+      rounded="3xl"
+      color={type == POST_TYPE.HELP ? "green.600" : ""}
+      bg={type == POST_TYPE.HELP ? "green.50" : ""}
+      onClick={() => dispatch(POST_TYPE.HELP)}
+    >
+      Help
+    </Button>
+    <Button
+      rounded="3xl"
+      color={type == POST_TYPE.SOCIAL ? "green.600" : ""}
+      bg={type == POST_TYPE.SOCIAL ? "green.50" : ""}
+      onClick={() => dispatch(POST_TYPE.SOCIAL)}
+    >
+      Social
+    </Button>
+  </HStack>
+);
 
 export default HelpPostListings;
