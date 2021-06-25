@@ -1,7 +1,15 @@
 import React, { useState } from "react";
-import { HStack, VStack, Heading, Button } from "@chakra-ui/react";
+import {
+  HStack,
+  VStack,
+  Heading,
+  Button,
+  Box,
+  Container,
+} from "@chakra-ui/react";
 
 import HelpPost, { HelpPostProps } from "./HelpPost";
+import SearchSkeleton from "./SearchSkeleton";
 
 export interface HelpPostsProps {
   posts?: HelpPostProps[];
@@ -49,16 +57,28 @@ const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
           Social
         </Button>
       </HStack>
-      {posts.map(({ author, title, datetimeISO, description, tags }, i) => (
-        <HelpPost
-          key={i}
-          author={author}
-          title={title}
-          description={description}
-          tags={tags}
-          datetimeISO={datetimeISO}
-        />
-      ))}
+      <>
+        {true ? (
+          <Box
+            // w="100%"
+            w={["xl", "xl", "xl", "2xl", "4xl"]}
+            // alignItems="flex-start"
+          >
+            <SearchSkeleton loading={true} />
+          </Box>
+        ) : (
+          posts?.map(({ author, title, datetimeISO, description, tags }, i) => (
+            <HelpPost
+              key={i}
+              author={author}
+              title={title}
+              description={description}
+              tags={tags}
+              datetimeISO={datetimeISO}
+            />
+          ))
+        )}
+      </>
     </VStack>
   );
 };
