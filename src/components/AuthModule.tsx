@@ -12,11 +12,14 @@ import {
   IconProps,
   Icon,
   Link,
+  Image,
 } from "@chakra-ui/react";
 import api from "../controller/api_client";
 import { useAuthContext } from "../store/auth";
 import { useHistory } from "react-router-dom";
 import { AUTH_ACTIONS } from "../store/types";
+import { getBase64 } from "../util/image_converter";
+import ImageUploader from "./ImageUploader";
 
 const AuthModule = () => {
   const [mode, setMode] = useState("login");
@@ -154,7 +157,6 @@ const LoginCard: React.FC<{
             type="text"
             placeholder="Username"
             bg={"gray.100"}
-            border={0}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
@@ -173,7 +175,6 @@ const LoginCard: React.FC<{
             type="password"
             placeholder="Password"
             bg={"gray.100"}
-            border={0}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
@@ -385,10 +386,7 @@ const SignupCard: React.FC<{
               })
             }
           />
-
-          <Button fontFamily={"heading"} bg={"gray.200"} color={"gray.800"}>
-            Upload your photo
-          </Button>
+          <ImageUploader dispatch={props.dispatch} />
           <Text color={"red.500"} fontSize={{ base: "sm", sm: "md" }}>
             {error}
           </Text>

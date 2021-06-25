@@ -57,6 +57,7 @@ const authReducer = (state: any, action: Dispatch) => {
       state.loading = false;
       break;
   }
+
   console.log(action);
 };
 
