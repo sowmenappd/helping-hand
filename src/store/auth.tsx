@@ -6,6 +6,7 @@ import { AUTH_ACTIONS, Dispatch } from "./types";
 export const initialState: any = {
   username: "",
   password: "",
+  imgB64: "",
   confirm_password: "",
   first_name: "",
   last_name: "",

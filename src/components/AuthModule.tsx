@@ -234,6 +234,7 @@ const SignupCard: React.FC<{
     first_name,
     last_name,
     password,
+    imgB64,
     confirm_password,
     loading,
     error,
@@ -255,13 +256,7 @@ const SignupCard: React.FC<{
     }
 
     try {
-      console.log(
-        "creds",
-        process.env.HARPERDB_USERNAME,
-        process.env.HARPERDB_PASSWORD
-      );
-
-      await api.signup({ first_name, last_name, username, password });
+      await api.signup({ first_name, last_name, username, password, imgB64 });
 
       props.dispatch({
         type: AUTH_ACTIONS.SIGNUP_SUCCESS,
@@ -386,7 +381,17 @@ const SignupCard: React.FC<{
               })
             }
           />
-          <ImageUploader dispatch={props.dispatch} />
+          <ImageUploader
+            onImage={(imgB64: string) => {
+              props.dispatch({
+                type: AUTH_ACTIONS.FIELD,
+                payload: {
+                  field: "imgB64",
+                  value: imgB64,
+                },
+              });
+            }}
+          />
           <Text color={"red.500"} fontSize={{ base: "sm", sm: "md" }}>
             {error}
           </Text>

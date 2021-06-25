@@ -26,6 +26,7 @@ const signup: any = async ({
   password,
   first_name,
   last_name,
+  imgB64,
 }: any) => {
   try {
     await client.post(
@@ -49,6 +50,7 @@ const signup: any = async ({
       {
         first_name,
         last_name,
+        imgB64,
         username,
       },
       {

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Box, Input, Image } from "@chakra-ui/react";
-import { AUTH_ACTIONS } from "../store/types";
 import { getBase64 } from "../util/image_converter";
 
-const ImageUploader = (props: { dispatch: any }) => {
+const ImageUploader = (props: { onImage: (imgB64: string) => void }) => {
   const [imageB64, setImage] = useState("");
 
   const Base64Image = (props: { b64: string }) => {
@@ -33,13 +32,7 @@ const ImageUploader = (props: { dispatch: any }) => {
         onChange={async (e) => {
           getBase64(e.target.files[0], (b64: string) => {
             setImage(b64);
-            props.dispatch({
-              type: AUTH_ACTIONS.FIELD,
-              payload: {
-                field: "imgB64",
-                value: b64,
-              },
-            });
+            props.onImage(b64);
           });
         }}
       />
