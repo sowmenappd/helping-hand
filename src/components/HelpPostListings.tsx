@@ -1,27 +1,44 @@
-import React, { useState } from "react";
-import {
-  HStack,
-  VStack,
-  Heading,
-  Button,
-  Box,
-  Container,
-} from "@chakra-ui/react";
+import React, { useEffect } from "react";
+import { HStack, VStack, Heading, Button, Box } from "@chakra-ui/react";
 
 import HelpPost, { HelpPostProps } from "./HelpPost";
 import SearchSkeleton from "./SearchSkeleton";
-import { usePostsContext } from "../store/posts";
+import { POST_TYPE, usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
+import NotFoundNotice from "./NotFoundNotice";
 
-export interface HelpPostsProps {
-  posts?: HelpPostProps[];
-}
+import PostController from "../controller/posts";
+import { useAuthContext } from "../store/auth";
 
-const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
-  const { posts } = props;
+const HelpPostListings: React.FC = (props) => {
+  const [authState] = useAuthContext();
   const [state, dispatch] = usePostsContext();
+  const { posts } = state;
 
-  if (!posts) return null;
+  const { data, loading, error } = posts;
+
+  useEffect(() => {
+    fetchPosts(state.currentPostsType);
+  }, [state.currentPostsType]);
+
+  const fetchPosts = async (type: "help" | "social") => {
+    dispatch({
+      type: POST_ACTIONS.FETCH_POSTS,
+      payload: { type },
+    });
+
+    try {
+      const { data } = await PostController.fetchPosts(type, authState.token);
+      console.log(data);
+      dispatch({
+        type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
+        payload: data,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <VStack maxW={"4xl"} alignItems="flex-start">
       <Heading as="h1" fontSize={["4xl", "6xl"]}>
@@ -40,47 +57,52 @@ const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
       <HStack pl="8" pt="4">
         <Button
           rounded="3xl"
-          color={state.currentPostsType == "help" ? "green.600" : ""}
-          bg={state.currentPostsType == "help" ? "green.50" : ""}
+          color={state.currentPostsType == POST_TYPE.HELP ? "green.600" : ""}
+          bg={state.currentPostsType == POST_TYPE.HELP ? "green.50" : ""}
           onClick={() =>
-            dispatch({ type: POST_ACTIONS.TOGGLE_TYPE, payload: "help" })
+            dispatch({
+              type: POST_ACTIONS.TOGGLE_TYPE,
+              payload: POST_TYPE.HELP,
+            })
           }
         >
           Help
         </Button>
         <Button
           rounded="3xl"
-          color={state.currentPostsType == "social" ? "green.600" : ""}
-          bg={state.currentPostsType == "social" ? "green.50" : ""}
+          color={state.currentPostsType == POST_TYPE.SOCIAL ? "green.600" : ""}
+          bg={state.currentPostsType == POST_TYPE.SOCIAL ? "green.50" : ""}
           onClick={() =>
-            dispatch({ type: POST_ACTIONS.TOGGLE_TYPE, payload: "social" })
+            dispatch({
+              type: POST_ACTIONS.TOGGLE_TYPE,
+              payload: POST_TYPE.SOCIAL,
+            })
           }
         >
           Social
         </Button>
       </HStack>
-      <>
-        {true ? (
-          <Box
-            // w="100%"
-            w={["xl", "xl", "xl", "2xl", "4xl"]}
-            // alignItems="flex-start"
-          >
-            <SearchSkeleton loading={true} />
-          </Box>
+      <Box w={["100%", "xl", "xl", "2xl", "4xl"]}>
+        {loading ? (
+          <SearchSkeleton loading={true} />
+        ) : error ? (
+          <NotFoundNotice />
         ) : (
-          posts?.map(({ author, title, datetimeISO, description, tags }, i) => (
-            <HelpPost
-              key={i}
-              author={author}
-              title={title}
-              description={description}
-              tags={tags}
-              datetimeISO={datetimeISO}
-            />
-          ))
+          data &&
+          data.map(
+            ({ id, author, title, datetimeISO, description, tags }: any) => (
+              <HelpPost
+                key={id}
+                author={author}
+                title={title}
+                description={description}
+                tags={tags}
+                datetimeISO={datetimeISO}
+              />
+            )
+          )
         )}
-      </>
+      </Box>
     </VStack>
   );
 };

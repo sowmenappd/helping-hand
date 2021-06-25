@@ -72,7 +72,7 @@ export interface HelpPostProps {
   author: {
     username: string;
     name: string; // combine first_name, last_name
-    imgUrl: string;
+    img: string;
   };
   datetimeISO: string;
   title: string;
@@ -83,7 +83,7 @@ export interface HelpPostProps {
 const HelpPost: React.FC<HelpPostProps> = (props) => {
   const { author, title, description, datetimeISO, tags } = props;
 
-  const hidden = true; // TODO: handle logic to show for friends only
+  const hidden = false; // TODO: handle logic to show for friends only
 
   return (
     <Container maxW={"4xl"}>
@@ -136,7 +136,7 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
           >
             <PostAuthor
               hidden={hidden}
-              imgUrl={author.imgUrl}
+              imgUrl={author.img}
               name={author.name}
               datetimeISO={new Date(datetimeISO)} //TODO: add date to post
             />

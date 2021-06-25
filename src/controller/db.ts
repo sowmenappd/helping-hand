@@ -3,6 +3,15 @@ import client from "./http_client";
 class Database {
   constructor() {}
 
+  public async executeSQLQuery(query: string, config: any): Promise<any> {
+    const command = {
+      operation: "sql",
+      sql: query,
+    };
+
+    return client.post("/", command, config);
+  }
+
   public async authenticate(
     { username, password }: any,
     config: any

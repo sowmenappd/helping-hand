@@ -28,7 +28,7 @@ import PostHelpSection from "../components/PostHelpSection";
 import { useAuthContext } from "../store/auth";
 
 export default function Main() {
-  const [state] = useAuthContext();
+  const [authState] = useAuthContext();
 
   return (
     <Layout>
@@ -40,10 +40,10 @@ export default function Main() {
       >
         <Sidebar
           user={{
-            name: state.first_name + state.last_name,
-            username: state.username,
-            imgB64: state.imgB64,
-            bio: state.bio,
+            name: authState.first_name + authState.last_name,
+            username: authState.username,
+            imgB64: authState.imgB64,
+            bio: authState.bio,
             tags: ["Fullstack", "Games", "Books", "React", "Typescript"],
           }}
           stats={null}
@@ -59,7 +59,7 @@ const dummyPosts: HelpPostProps[] = [
     author: {
       username: "sowmenr1",
       name: "Sowmen Rahman",
-      imgUrl: "https://100k-faces.glitch.me/random-image",
+      img: "https://100k-faces.glitch.me/random-image",
     },
     title: "Help wanted! Dog lost 😔",
     description:
@@ -71,9 +71,9 @@ const dummyPosts: HelpPostProps[] = [
     author: {
       username: "sowmenr1",
       name: "Sowmen Rahman",
-      imgUrl: "https://100k-faces.glitch.me/random-image",
+      img: "https://100k-faces.glitch.me/random-image",
     },
-    title: "Help wanted! Anal fissure 😢",
+    title: "Help wanted! Sore throat 😢",
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum simply dummy text of the printing and typesetting industry. Lorem Ipsum is simply dummy text of the of the printing and typesetting industry. of the of the printing and typesetting industry.of the of the printing and typesetting industry.of the of the printing and typesetting industry.",
     tags: ["Product", "Engineering", "Question"],
@@ -111,7 +111,7 @@ const MainView = () => {
             ) : (
               <>
                 <PostHelpSection />
-                <HelpPostListings posts={dummyPosts} />
+                <HelpPostListings />
               </>
             )}
           </Route>
@@ -136,16 +136,6 @@ interface SidebarProps {
   user: SidebarUserProps;
   stats: null;
 }
-
-// const dummy = {
-//   name: "Lindsey James",
-//   username: "@lindsey_jam3s",
-//   description:
-//     "Actress, musician, songwriter and artist. PM for work inquires or #tag me in your posts",
-//   tags: ["art", "photography", "music"],
-//   imgUrl:
-//     "https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ",
-// }
 
 const Sidebar: React.FC<SidebarProps> = (props) => {
   const { user } = props;

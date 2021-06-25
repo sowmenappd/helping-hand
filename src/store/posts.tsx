@@ -2,10 +2,19 @@ import React, { createContext, useContext, useReducer } from "react";
 import produce from "immer";
 import { Dispatch, POST_ACTIONS } from "./types";
 
+export const POST_TYPE = {
+  HELP: "help",
+  SOCIAL: "social",
+};
+
 const initialState: any = {
-  posts: [],
+  posts: {
+    data: [],
+    loading: true,
+    error: false,
+  },
   currentPost: null,
-  currentPostsType: "help",
+  currentPostsType: POST_TYPE.HELP,
 };
 
 const PostsContext = createContext(initialState);
@@ -18,9 +27,23 @@ const postsReducer = (state: any, action: Dispatch) => {
     case POST_ACTIONS.TOGGLE_TYPE:
       state.currentPostsType = action.payload;
       break;
-    default:
-      return state;
+    case POST_ACTIONS.FETCH_POSTS:
+      state.currentPostsType = action.payload.type;
+      state.posts.loading = true;
+      state.posts.error = false;
+      break;
+    case POST_ACTIONS.FETCH_POSTS_SUCCESS:
+      state.posts.data = action.payload;
+      state.posts.loading = false;
+      state.posts.error = false;
+      break;
+    case POST_ACTIONS.FETCH_POSTS_ERROR:
+      state.posts = [];
+      state.posts.loading = false;
+      state.posts.error = true;
+      break;
   }
+  console.log(action);
 };
 
 const PostsStoreProvider: React.FC = ({ children }) => {

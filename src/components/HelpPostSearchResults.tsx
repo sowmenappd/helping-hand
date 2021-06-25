@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  VStack,
-  Heading,
-  Box,
-  SkeletonCircle,
-  SkeletonText,
-} from "@chakra-ui/react";
+import { VStack, Heading, Box } from "@chakra-ui/react";
 import SearchSkeleton from "./SearchSkeleton";
 
 const HelpPostSearchResults: React.FC<{
@@ -42,34 +36,6 @@ const HelpPostSearchResults: React.FC<{
       >
         <SearchSkeleton loading={loading} />
       </Box>
-
-      {/* <HStack pl="8" pt="4">
-        <Button
-          rounded="3xl"
-          color={postType == "help" ? "green.600" : ""}
-          bg={postType == "help" ? "green.50" : ""}
-          onClick={() => handlePostType("help")}
-        >
-          Help
-        </Button>
-        <Button
-          rounded="3xl"
-          color={postType == "friends" ? "green.600" : ""}
-          bg={postType == "friends" ? "green.50" : ""}
-          onClick={() => handlePostType("friends")}
-        >
-          Friends
-        </Button>
-      </HStack> */}
-      {/* {posts.map(({ author, title, datetimeISO, description, tags }) => (
-        <HelpPost
-          author={author}
-          title={title}
-          description={description}
-          tags={tags}
-          datetimeISO={datetimeISO}
-        />
-      ))} */}
     </VStack>
   );
 };

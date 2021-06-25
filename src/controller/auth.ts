@@ -1,5 +1,4 @@
-import client from "./http_client";
-import Database from "./db";
+import db from "./db";
 
 class AuthController {
   constructor() {}
@@ -13,15 +12,10 @@ class AuthController {
         },
       };
 
-      const res = await Database.authenticate({ username, password }, config);
+      const res = await db.authenticate({ username, password }, config);
       const { operation_token: token, refresh_token } = res.data;
 
-      const userRes = await Database.findBy(
-        "users",
-        "username",
-        username,
-        config
-      );
+      const userRes = await db.findBy("users", "username", username, config);
 
       const userObj = userRes.data[0];
       const finalObj = { ...userObj, token, refresh_token };
@@ -33,7 +27,7 @@ class AuthController {
 
   async signup({ username, password, first_name, last_name, imgB64 }: any) {
     try {
-      await Database.createUser({
+      await db.createUser({
         username,
         password,
         first_name,

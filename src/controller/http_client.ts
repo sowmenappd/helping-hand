@@ -7,6 +7,7 @@ const client = axios.create({
 client.interceptors.response.use(
   (res) => res,
   (err) => {
+    console.log(err.response);
     if (err.response.status === 401) {
       return Promise.reject({
         message: "Invalid credentials. Please try again.",

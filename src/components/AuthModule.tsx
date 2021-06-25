@@ -12,9 +12,8 @@ import {
   IconProps,
   Icon,
   Link,
-  Image,
 } from "@chakra-ui/react";
-import authController from "../controller/auth";
+import AuthController from "../controller/auth";
 import { useAuthContext } from "../store/auth";
 import { useHistory } from "react-router-dom";
 import { AUTH_ACTIONS } from "../store/types";
@@ -101,7 +100,7 @@ const LoginCard: React.FC<{
 
   const handleLogin = async () => {
     try {
-      const res = await authController.login({ username, password });
+      const res = await AuthController.login({ username, password });
       props.dispatch({
         type: AUTH_ACTIONS.LOGIN_SUCCESS,
         payload: {
@@ -252,7 +251,7 @@ const SignupCard: React.FC<{
     }
 
     try {
-      await authController.signup({
+      await AuthController.signup({
         first_name,
         last_name,
         username,
