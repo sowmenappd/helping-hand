@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useReducer } from "react";
 import produce from "immer";
-import { Dispatch } from "./types";
+import { Dispatch, POST_ACTIONS } from "./types";
 
 const initialState: any = {
   posts: [],
   currentPost: null,
+  currentPostsType: "help",
 };
 
 const PostsContext = createContext(initialState);
@@ -14,6 +15,9 @@ export const usePostsContext = () => {
 
 const postsReducer = (state: any, action: Dispatch) => {
   switch (action.type) {
+    case POST_ACTIONS.TOGGLE_TYPE:
+      state.currentPostsType = action.payload;
+      break;
     default:
       return state;
   }

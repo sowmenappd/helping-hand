@@ -12,3 +12,7 @@ export const AUTH_ACTIONS = {
   SIGNUP_FAILED: "SIGNUP_FAILED",
   FIELD: "FIELD",
 };
+
+export const POST_ACTIONS = {
+  TOGGLE_TYPE: "TOGGLE_TYPE",
+};

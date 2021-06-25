@@ -10,6 +10,8 @@ import {
 
 import HelpPost, { HelpPostProps } from "./HelpPost";
 import SearchSkeleton from "./SearchSkeleton";
+import { usePostsContext } from "../store/posts";
+import { POST_ACTIONS } from "../store/types";
 
 export interface HelpPostsProps {
   posts?: HelpPostProps[];
@@ -17,11 +19,7 @@ export interface HelpPostsProps {
 
 const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
   const { posts } = props;
-  const [postType, setPostType] = useState("help");
-
-  const handlePostType = (type: "help" | "social") => {
-    setPostType(type);
-  };
+  const [state, dispatch] = usePostsContext();
 
   if (!posts) return null;
   return (
@@ -42,17 +40,21 @@ const HelpPostListings: React.FC<HelpPostsProps> = (props) => {
       <HStack pl="8" pt="4">
         <Button
           rounded="3xl"
-          color={postType == "help" ? "green.600" : ""}
-          bg={postType == "help" ? "green.50" : ""}
-          onClick={() => handlePostType("help")}
+          color={state.currentPostsType == "help" ? "green.600" : ""}
+          bg={state.currentPostsType == "help" ? "green.50" : ""}
+          onClick={() =>
+            dispatch({ type: POST_ACTIONS.TOGGLE_TYPE, payload: "help" })
+          }
         >
           Help
         </Button>
         <Button
           rounded="3xl"
-          color={postType == "social" ? "green.600" : ""}
-          bg={postType == "social" ? "green.50" : ""}
-          onClick={() => handlePostType("social")}
+          color={state.currentPostsType == "social" ? "green.600" : ""}
+          bg={state.currentPostsType == "social" ? "green.50" : ""}
+          onClick={() =>
+            dispatch({ type: POST_ACTIONS.TOGGLE_TYPE, payload: "social" })
+          }
         >
           Social
         </Button>
