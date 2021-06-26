@@ -9,7 +9,11 @@ class PostController {
     orderBy: string = "__createdtime__",
     order: string = "DESC"
   ) {
-    return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\" ORDER BY ${orderBy} ${order}`;
+    return `SELECT posts.id, title, description, username, author, datetimeISO, connections.blocked, connections.friends, tags
+    FROM ${schema}.posts
+  FULL OUTER JOIN ${schema}.connections
+  ON (posts.username = connections.user1 OR posts.username = connections.user2) WHERE posts.type = \"${type}\" AND connections.blocked = "false" ORDER BY posts.${orderBy} ${order}`;
+    // return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\" ORDER BY ${orderBy} ${order}`;
   }
 
   private constructQueryForSearchKeywords(searchTerms: string[]) {
@@ -30,7 +34,7 @@ class PostController {
     const descPatterns = repeatFor("description", searchTerms);
     const tagPatterns = repeatFor("tags", searchTerms);
 
-    const q = `SELECT * FROM development.posts WHERE ${titlePatterns} or ${descPatterns} or ${tagPatterns}`;
+    const q = `SELECT * FROM ${process.env.NODE_ENV}.posts WHERE ${titlePatterns} or ${descPatterns} or ${tagPatterns}`;
     console.log(q);
     return q;
   }

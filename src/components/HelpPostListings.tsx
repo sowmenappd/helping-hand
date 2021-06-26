@@ -52,7 +52,15 @@ const HelpPostListings: React.FC = (props) => {
         ) : (
           data &&
           data.map(
-            ({ id, author, title, datetimeISO, description, tags }: any) => {
+            ({
+              id,
+              author,
+              title,
+              datetimeISO,
+              description,
+              tags,
+              friends,
+            }: any) => {
               return (
                 <HelpPost
                   key={id}
@@ -62,6 +70,7 @@ const HelpPostListings: React.FC = (props) => {
                   description={description}
                   tags={tags}
                   datetimeISO={datetimeISO}
+                  hidden={!friends}
                 />
               );
             }

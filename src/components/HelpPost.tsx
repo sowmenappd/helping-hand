@@ -17,6 +17,7 @@ import { TiArrowForward as ForwardIcon } from "react-icons/ti";
 import { MdReport as ReportIcon } from "react-icons/md";
 import { usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
+import { getRelativeTimestring } from "../util/time";
 
 interface PostTagsProps {
   tags: Array<string>;
@@ -60,10 +61,11 @@ export const PostAuthor: React.FC<PostAuthorProps> = (props) => {
 
       <Box paddingLeft={2}>
         <Text textAlign="end" fontWeight="bold">
-          {props.name}
+          {props.hidden ? <i>Someone</i> : props.name}
         </Text>
+
         <Text textAlign="end" fontWeight="black" color="gray.500">
-          {props.datetimeISO.toLocaleDateString()}
+          {getRelativeTimestring(props.datetimeISO)}
         </Text>
       </Box>
     </HStack>
@@ -81,12 +83,11 @@ export interface HelpPostProps {
   title: string;
   description: string;
   tags: string[];
+  hidden: boolean;
 }
 
 const HelpPost: React.FC<HelpPostProps> = (props) => {
-  const { id, author, title, description, datetimeISO, tags } = props;
-
-  const hidden = false; // TODO: handle logic to show for friends only
+  const { id, hidden, author, title, description, datetimeISO, tags } = props;
 
   const [_, dispatch] = usePostsContext();
 
