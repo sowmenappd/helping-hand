@@ -9,7 +9,7 @@ export const getRelativeTimestring: any = (time: string) => {
   if (days >= 1) {
     return `${days == 1 ? "a day" : days.toFixed(0) + " days"} ago`;
   }
-  if (hours > 0) {
+  if (hours >= 1) {
     return `${hours == 1 ? "an hour" : hours.toFixed(0) + " hours"} ago`;
   }
 

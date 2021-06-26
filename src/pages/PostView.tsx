@@ -16,7 +16,11 @@ import {
   Tooltip,
   Image,
 } from "@chakra-ui/react";
-import { usePostsContext } from "../store/posts";
+import {
+  addPostMessage,
+  fetchPostMesssages,
+  usePostsContext,
+} from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import { getRelativeTimestring } from "../util/time";
 import PostController from "../controller/posts";
@@ -37,22 +41,9 @@ const PostView: React.FC<{
 
   useEffect(() => {
     if (!post) return;
-
-    PostController.fetchPostMessages(post.id, token)
-      .then(({ data }) => {
-        dispatch({
-          type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
-          payload: data,
-        });
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err);
-        dispatch({
-          type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_ERROR,
-        });
-      });
+    fetchPostMesssages(post.id, dispatch, token);
   }, [post]);
+
   if (!post) return null;
 
   return (
@@ -88,25 +79,22 @@ const PostView: React.FC<{
                 <FirstTimeNotice
                   onMessageUser={() => {
                     console.log(post.id);
-                    PostController.addPostMessage(
+                    const firstMsg =
+                      "Hello there, I think I might be able to help you!";
+                    addPostMessage(
                       post.id,
-                      "Hello there, I think I might be able to help you!",
                       username,
+                      firstMsg,
+                      dispatch,
                       token
-                    )
-                      .then(() => {
-                        dispatch({
-                          type: POST_ACTIONS.HIDE_VIEW_POST,
-                        });
-                      })
-                      .catch((err) => console.log(err));
+                    );
                     // post.id --> postId
                     // message --> "Hello there, I think I might be able to help you!"
                     // owner   --> authstate.username
                   }}
                 />
               ) : (
-                <MessageStack messages={messages.data} />
+                <MessageStack username={username} messages={messages.data} />
               ))}
           </Stack>
         </ModalBody>
@@ -185,15 +173,25 @@ const FirstTimeNotice: React.FC<{ onMessageUser: () => void }> = (props) => (
   </Box>
 );
 
-const MessageStack: React.FC<{ messages: any[] }> = ({ messages }) => {
+const MessageStack: React.FC<{ messages: any[]; username: string }> = ({
+  messages,
+  username,
+}) => {
   return (
-    <Box display="flex" py={[2]} px={[0, 5]}>
+    <Box display="flex" flexDir="column" py={[2]} px={[1, 5]} h="xl">
+      <Divider my={"4"} />
       {messages?.map(({ owner, message }) => (
-        <Box w="full" display="flex" justifyContent="flex-start">
+        <Box
+          key={message.id}
+          w="full"
+          display="flex"
+          h="fit-content"
+          justifyContent={username === owner ? "flex-end" : "flex-start"}
+        >
           <Box
             bg="gray.100"
             rounded="3xl"
-            flexDir="row-reverse"
+            flexDir={"row-reverse"}
             w="fit-content"
             p={3}
             px={4}

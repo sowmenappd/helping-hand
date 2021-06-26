@@ -3,7 +3,7 @@ import db from "./db";
 class PostController {
   constructor() {}
 
-  private constructQueryByType(schema: string, type: "help" | "social") {
+  private constructQueryByPostType(schema: string, type: "help" | "social") {
     return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\"`;
   }
 
@@ -31,7 +31,7 @@ class PostController {
   }
 
   public async fetchPosts(type: "help" | "social", token: string) {
-    const query = this.constructQueryByType(process.env.NODE_ENV, type);
+    const query = this.constructQueryByPostType(process.env.NODE_ENV, type);
     const config = {
       headers: {
         authorization: `Bearer ${token}`,

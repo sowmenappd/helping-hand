@@ -15,7 +15,7 @@ import {
 
 import { BiImageAdd as AddImageIcon } from "react-icons/bi";
 import { MdDone as DoneIcon } from "react-icons/md";
-import { POST_TYPE, usePostsContext } from "../store/posts";
+import { addPost, POST_TYPE, usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 
 import PostController from "../controller/posts";
@@ -23,36 +23,34 @@ import { useAuthContext } from "../store/auth";
 import { PostTypeSelector } from "./HelpPostListings";
 
 const PostHelpSection = () => {
-  // const [title, setTitle] = useState("");
-  // const [description, setDescription] = useState("");
-
   const [btnVisible, setBtnVisible] = useState(false);
 
   const [{ token, username, first_name, last_name, imgB64: img }] =
     useAuthContext();
   const [state, dispatch] = usePostsContext();
 
-  const { currentPost } = state;
+  const { currentPost, currentPostsType } = state;
   const { title, tags, description } = currentPost;
 
   const handleTextFocus = (visible: boolean) => {
     setBtnVisible(visible);
-    if (visible)
+    if (visible) {
       dispatch({
         type: POST_ACTIONS.SET_POST_AUTHOR,
         payload: {
+          username,
           author: {
-            username,
             name: first_name + " " + last_name,
             img,
           },
         },
       });
-    if (!currentPost.type) {
-      dispatch({
-        type: POST_ACTIONS.SET_POST_TYPE,
-        payload: POST_TYPE.HELP,
-      });
+      if (!currentPost.type) {
+        dispatch({
+          type: POST_ACTIONS.SET_POST_TYPE,
+          payload: POST_TYPE.HELP,
+        });
+      }
     }
   };
 
@@ -74,33 +72,7 @@ const PostHelpSection = () => {
   };
 
   const handleSubmitPost = async () => {
-    if (!currentPost.title || !currentPost.description) return;
-
-    // TODO: add post
-    dispatch({
-      type: POST_ACTIONS.ADD_POST,
-      payload: {
-        author: {
-          username,
-          name: first_name + " " + last_name,
-          img,
-        },
-      },
-    });
-    setTimeout(async () => {
-      try {
-        await PostController.addPost(currentPost, token);
-        dispatch({
-          type: POST_ACTIONS.ADD_POST_SUCCESS,
-        });
-      } catch (err) {
-        dispatch({
-          type: POST_ACTIONS.ADD_POST_ERROR,
-          // TODO: add error messag as payload to show as a toast notification
-        });
-        console.log(err);
-      }
-    }, 100);
+    addPost(currentPost, currentPost.type, token, dispatch);
   };
 
   return (

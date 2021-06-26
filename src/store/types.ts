@@ -1,6 +1,6 @@
 export interface Dispatch {
   type: string;
-  payload: any;
+  payload?: any;
 }
 
 export const AUTH_ACTIONS = {

@@ -26,7 +26,7 @@ import HelpPostSearchResults from "../components/HelpPostSearchResults";
 import PostHelpSection from "../components/PostHelpSection";
 import { useAuthContext } from "../store/auth";
 import PostView from "./PostView";
-import { usePostsContext } from "../store/posts";
+import { searchPosts, usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import PostController from "../controller/posts";
 
@@ -64,24 +64,7 @@ const MainView = () => {
   const [{ token }] = useAuthContext();
 
   useEffect(() => {
-    if (searchText.length < 4) return;
-    dispatch({
-      type: POST_ACTIONS.SEARCH_POSTS,
-    });
-    PostController.search(searchText, token)
-      .then(({ data }) => {
-        dispatch({
-          type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
-          payload: data,
-        });
-        console.log(data);
-      })
-      .catch((err) => {
-        dispatch({
-          type: POST_ACTIONS.FETCH_POSTS_ERROR,
-        });
-        console.log(err);
-      });
+    searchPosts(searchText, dispatch, token);
   }, [searchText]);
 
   return (

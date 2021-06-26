@@ -51,38 +51,11 @@ const UserProfileCard: React.FC<Props> = (props) => {
               boxSize="20"
               w="20"
               h="20"
-              _after={{
-                content: '""',
-                w: 6,
-                h: 6,
-                bg: "green.300",
-                border: "2px solid white",
-                rounded: "full",
-                pos: "absolute",
-                bottom: 0,
-                right: 1,
-                zIndex: 10,
-              }}
+              rounded="50%"
             />
           </Box>
         ) : (
-          <Avatar
-            size={"xl"}
-            alt={props.user.name}
-            mb={4}
-            pos={"relative"}
-            _after={{
-              content: '""',
-              w: 4,
-              h: 4,
-              bg: "green.300",
-              border: "2px solid white",
-              rounded: "full",
-              pos: "absolute",
-              bottom: 0,
-              right: 2,
-            }}
-          />
+          <Avatar size={"xl"} alt={props.user.name} mb={4} pos={"relative"} />
         )}
 
         <Heading fontSize={"2xl"} fontFamily={"body"}>

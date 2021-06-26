@@ -3,11 +3,10 @@ import { HStack, VStack, Heading, Button, Box } from "@chakra-ui/react";
 
 import HelpPost from "./HelpPost";
 import SearchSkeleton from "./SearchSkeleton";
-import { POST_TYPE, usePostsContext } from "../store/posts";
+import { fetchPosts, POST_TYPE, usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import NotFoundNotice from "./NotFoundNotice";
 
-import PostController from "../controller/posts";
 import { useAuthContext } from "../store/auth";
 
 const HelpPostListings: React.FC = (props) => {
@@ -18,26 +17,8 @@ const HelpPostListings: React.FC = (props) => {
   const { data, loading, error } = posts;
 
   useEffect(() => {
-    fetchPosts(state.currentPostsType);
+    fetchPosts(state.currentPostsType, dispatch, authState.token);
   }, [state.currentPostsType]);
-
-  const fetchPosts = async (type: "help" | "social") => {
-    dispatch({
-      type: POST_ACTIONS.FETCH_POSTS,
-      payload: { type },
-    });
-
-    try {
-      const { data } = await PostController.fetchPosts(type, authState.token);
-      console.log(data);
-      dispatch({
-        type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
-        payload: data,
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   return (
     <VStack maxW={"6xl"} alignItems="flex-start">
