@@ -14,7 +14,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import AuthController from "../controller/auth";
-import { useAuthContext } from "../store/auth";
+import { login, signup, useAuthContext } from "../store/auth";
 import { useHistory } from "react-router-dom";
 import { AUTH_ACTIONS } from "../store/types";
 import ImageUploader from "./ImageUploader";
@@ -97,27 +97,15 @@ const LoginCard: React.FC<{
   state: any;
   dispatch: any;
 }> = (props) => {
-  const { username, password, loading, error } = props.state;
+  const { state, dispatch, onActivateSignup } = props;
 
+  const { username, password, loading, error } = state;
   const history = useHistory();
 
   const handleLogin = async () => {
-    try {
-      const res = await AuthController.login({ username, password });
-      props.dispatch({
-        type: AUTH_ACTIONS.LOGIN_SUCCESS,
-        payload: {
-          ...res,
-        },
-      });
+    login({ username, password }, dispatch, () => {
       history.push("/h");
-    } catch (err) {
-      console.log(err.message);
-      props.dispatch({
-        type: AUTH_ACTIONS.LOGIN_FAILED,
-        payload: err.message,
-      });
-    }
+    });
   };
 
   return (
@@ -160,7 +148,7 @@ const LoginCard: React.FC<{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: { field: "username", value: e.currentTarget.value },
               })
@@ -178,7 +166,7 @@ const LoginCard: React.FC<{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: { field: "password", value: e.currentTarget.value },
               })
@@ -204,7 +192,6 @@ const LoginCard: React.FC<{
           }}
           onClick={(e) => {
             e.preventDefault();
-            props.dispatch({ type: AUTH_ACTIONS.LOGIN });
             handleLogin();
           }}
           type="submit"
@@ -213,7 +200,7 @@ const LoginCard: React.FC<{
         </Button>
         <Text color={"gray.500"} mt={5} fontSize={{ base: "sm", sm: "md" }}>
           Don't have an account?{" "}
-          <Link color="red.400" onClick={props.onActivateSignup}>
+          <Link color="red.400" onClick={onActivateSignup}>
             Sign up now!
           </Link>
         </Text>
@@ -227,6 +214,7 @@ const SignupCard: React.FC<{
   state: any;
   dispatch: any;
 }> = (props) => {
+  const { state, dispatch, onActivateLogin } = props;
   const {
     username,
     first_name,
@@ -236,43 +224,14 @@ const SignupCard: React.FC<{
     confirm_password,
     loading,
     error,
-  } = props.state;
+  } = state;
 
   const handleSignup = async () => {
-    if (password != confirm_password) {
-      return props.dispatch({
-        type: AUTH_ACTIONS.SIGNUP_FAILED,
-        payload: "Passwords do not match.",
-      });
-    }
-
-    if (!username || username.length < 5) {
-      return props.dispatch({
-        type: AUTH_ACTIONS.SIGNUP_FAILED,
-        payload: "Username must be at least 5 characters.",
-      });
-    }
-
-    try {
-      await AuthController.signup({
-        first_name,
-        last_name,
-        username,
-        password,
-        imgB64,
-      });
-
-      props.dispatch({
-        type: AUTH_ACTIONS.SIGNUP_SUCCESS,
-        payload: "Signup successful!",
-      });
-    } catch (err) {
-      console.log(err.message);
-      props.dispatch({
-        type: AUTH_ACTIONS.SIGNUP_FAILED,
-        payload: err.message,
-      });
-    }
+    signup(
+      { username, password, confirm_password, first_name, last_name, imgB64 },
+      dispatch,
+      () => {}
+    );
   };
 
   return (
@@ -415,7 +374,6 @@ const SignupCard: React.FC<{
           type={"submit"}
           onClick={(e) => {
             e.preventDefault();
-            props.dispatch({ type: AUTH_ACTIONS.SIGNUP });
             handleSignup();
           }}
         >
@@ -423,7 +381,7 @@ const SignupCard: React.FC<{
         </Button>
         <Text color={"gray.500"} mt={5} fontSize={{ base: "sm", sm: "md" }}>
           Already have an account?{" "}
-          <Link color="red.400" onClick={props.onActivateLogin}>
+          <Link color="red.400" onClick={onActivateLogin}>
             Login here
           </Link>
         </Text>

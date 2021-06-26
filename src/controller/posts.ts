@@ -3,8 +3,13 @@ import db from "./db";
 class PostController {
   constructor() {}
 
-  private constructQueryByPostType(schema: string, type: "help" | "social") {
-    return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\"`;
+  private constructQueryByPostType(
+    schema: string,
+    type: "help" | "social",
+    orderBy: string = "__createdtime__",
+    order: string = "DESC"
+  ) {
+    return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\" ORDER BY ${orderBy} ${order}`;
   }
 
   private constructQueryForSearchKeywords(searchTerms: string[]) {

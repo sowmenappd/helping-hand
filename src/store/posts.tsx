@@ -136,12 +136,7 @@ export const addPost = async (
     dispatch({
       type: POST_ACTIONS.ADD_POST_SUCCESS,
     });
-    dispatch({
-      type: POST_ACTIONS.FETCH_POSTS,
-      payload: {
-        type,
-      },
-    });
+    fetchPosts(type, dispatch, token);
   } catch (err) {
     dispatch({
       type: POST_ACTIONS.ADD_POST_ERROR,

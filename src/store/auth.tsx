@@ -2,6 +2,7 @@ import React, { createContext, useReducer } from "react";
 import produce from "immer";
 import { useContext } from "react";
 import { AUTH_ACTIONS, Dispatch } from "./types";
+import AuthController from "../controller/auth";
 
 export const initialState: any = {
   username: "sowmenr1",
@@ -85,3 +86,72 @@ export default AuthStoreProvider;
 //                    DISPATCH FUNCTIONS
 
 ////////////////////////////////////////////////////////////
+
+export const login = async (
+  { username, password }: any,
+  dispatch: (dispatchObj: Dispatch) => void,
+  onSuccess: () => void
+) => {
+  try {
+    dispatch({ type: AUTH_ACTIONS.LOGIN });
+
+    const res = await AuthController.login({ username, password });
+    dispatch({
+      type: AUTH_ACTIONS.LOGIN_SUCCESS,
+      payload: {
+        ...res,
+      },
+    });
+    onSuccess();
+  } catch (err) {
+    console.log(err.message);
+    dispatch({
+      type: AUTH_ACTIONS.LOGIN_FAILED,
+      payload: err.message,
+    });
+  }
+};
+
+export const signup = async (
+  { username, password, confirm_password, first_name, last_name, imgB64 }: any,
+  dispatch: (dispatchObj: Dispatch) => void,
+  onSuccess: () => void
+) => {
+  dispatch({ type: AUTH_ACTIONS.SIGNUP });
+
+  if (password != confirm_password) {
+    return dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: "Passwords do not match.",
+    });
+  }
+
+  if (!username || username.length < 5) {
+    return dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: "Username must be at least 5 characters.",
+    });
+  }
+
+  try {
+    await AuthController.signup({
+      first_name,
+      last_name,
+      username,
+      password,
+      imgB64,
+    });
+
+    dispatch({
+      type: AUTH_ACTIONS.SIGNUP_SUCCESS,
+      payload: "Signup successful!",
+    });
+    onSuccess?.();
+  } catch (err) {
+    console.log(err.message);
+    dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: err.message,
+    });
+  }
+};
