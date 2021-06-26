@@ -15,6 +15,8 @@ import {
 } from "@chakra-ui/react";
 import { TiArrowForward as ForwardIcon } from "react-icons/ti";
 import { MdReport as ReportIcon } from "react-icons/md";
+import { usePostsContext } from "../store/posts";
+import { POST_ACTIONS } from "../store/types";
 
 interface PostTagsProps {
   tags: Array<string>;
@@ -69,6 +71,7 @@ export const PostAuthor: React.FC<PostAuthorProps> = (props) => {
 };
 
 export interface HelpPostProps {
+  id: string;
   author: {
     username: string;
     name: string; // combine first_name, last_name
@@ -81,9 +84,11 @@ export interface HelpPostProps {
 }
 
 const HelpPost: React.FC<HelpPostProps> = (props) => {
-  const { author, title, description, datetimeISO, tags } = props;
+  const { id, author, title, description, datetimeISO, tags } = props;
 
   const hidden = false; // TODO: handle logic to show for friends only
+
+  const [_, dispatch] = usePostsContext();
 
   return (
     <Container maxW={"4xl"}>
@@ -154,6 +159,12 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
                 rounded="2xl"
                 color="blue.400"
                 bgColor="transparent"
+                onClick={() =>
+                  dispatch({
+                    type: POST_ACTIONS.VIEW_POST,
+                    payload: props,
+                  })
+                }
               >
                 <ForwardIcon size={28} />
               </IconButton>

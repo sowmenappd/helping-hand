@@ -15,6 +15,8 @@ const initialState: any = {
   },
   currentPost: {},
   currentPostsType: POST_TYPE.HELP,
+  isViewingPost: false,
+  viewPost: null,
 };
 
 const PostsContext = createContext(initialState);
@@ -64,6 +66,14 @@ const postsReducer = (state: any, action: Dispatch) => {
       break;
     case POST_ACTIONS.TOGGLE_TYPE:
       state.currentPostsType = action.payload;
+      break;
+    case POST_ACTIONS.VIEW_POST:
+      state.isViewingPost = true;
+      state.viewPost = action.payload;
+      break;
+    case POST_ACTIONS.HIDE_VIEW_POST:
+      state.isViewingPost = false;
+      state.viewPost = null;
       break;
   }
   console.log(action);

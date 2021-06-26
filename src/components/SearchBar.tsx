@@ -2,7 +2,7 @@ import React from "react";
 import { Center, Input } from "@chakra-ui/react";
 
 const SearchBar: React.FC<{ searchText: string; onSearch: any }> = (props) => (
-  <Center mb="8" maxW={["xs", "xl", "3xl", "4xl"]} ml={3}>
+  <Center mb="8" maxW={["sm", "2xl", "3xl", "4xl"]} ml={3}>
     <Input
       placeholder="Search tags, topics, etc..."
       variant="filled"

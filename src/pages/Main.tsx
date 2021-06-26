@@ -26,6 +26,8 @@ import { HelpPostProps } from "../components/HelpPost";
 import HelpPostSearchResults from "../components/HelpPostSearchResults";
 import PostHelpSection from "../components/PostHelpSection";
 import { useAuthContext } from "../store/auth";
+import PostView from "./PostView";
+import { usePostsContext } from "../store/posts";
 
 export default function Main() {
   const [authState] = useAuthContext();
@@ -54,38 +56,13 @@ export default function Main() {
   );
 }
 
-const dummyPosts: HelpPostProps[] = [
-  {
-    author: {
-      username: "sowmenr1",
-      name: "Sowmen Rahman",
-      img: "https://100k-faces.glitch.me/random-image",
-    },
-    title: "Help wanted! Dog lost 😔",
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum simply dummy text of the printing and typesetting industry. Lorem Ipsum is simply dummy text of the of the printing and typesetting industry. of the of the printing and typesetting industry.of the of the printing and typesetting industry.of the of the printing and typesetting industry.",
-    tags: ["Product", "Engineering", "Question"],
-    datetimeISO: "2021-05-14T20:12:09.134Z",
-  },
-  {
-    author: {
-      username: "sowmenr1",
-      name: "Sowmen Rahman",
-      img: "https://100k-faces.glitch.me/random-image",
-    },
-    title: "Help wanted! Sore throat 😢",
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum simply dummy text of the printing and typesetting industry. Lorem Ipsum is simply dummy text of the of the printing and typesetting industry. of the of the printing and typesetting industry.of the of the printing and typesetting industry.of the of the printing and typesetting industry.",
-    tags: ["Product", "Engineering", "Question"],
-    datetimeISO: "2021-06-13T20:12:09.134Z",
-  },
-];
-
 const MainView = () => {
   const [searchText, setSearchText] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
   const [searchResults, setSearchResults] = useState([]);
+
+  const [{ isViewingPost, viewPost }] = usePostsContext();
 
   useEffect(() => {
     // TODO: fetch search results from API
@@ -114,10 +91,8 @@ const MainView = () => {
                 <HelpPostListings />
               </>
             )}
+            {<PostView post={viewPost} isOpen={isViewingPost} />}
           </Route>
-          {/* <Route>
-            
-          </Route> */}
         </Switch>
       </Router>
     </Box>

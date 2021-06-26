@@ -10,6 +10,7 @@ import {
   ButtonGroup,
   Button,
   HStack,
+  Stack,
 } from "@chakra-ui/react";
 
 import { BiImageAdd as AddImageIcon } from "react-icons/bi";
@@ -164,7 +165,12 @@ const PostHelpSection = () => {
             onFocus={() => handleTextFocus(true)}
           />
           {btnVisible && (
-            <HStack w="100%" align="center" justify="space-between">
+            <Stack
+              direction={["column", "row"]}
+              w="100%"
+              align="center"
+              justify="space-between"
+            >
               <Box
                 pt={[1, 1]}
                 pb={[1, 1]}
@@ -195,7 +201,7 @@ const PostHelpSection = () => {
                   onSubmit={handleSubmitPost}
                 />
               </Box>
-            </HStack>
+            </Stack>
           )}
         </VStack>
       </Box>

@@ -34,17 +34,20 @@ const AuthModule = () => {
         py={{ base: 10, sm: 20, lg: 32 }}
       >
         <Stack spacing={{ base: 10, md: 20 }}>
-          <Heading
-            lineHeight={1.1}
-            fontSize={{ base: "5xl", sm: "4xl", md: "5xl", lg: "8xl" }}
-          >
-            <Text as={"span"}>Helping </Text>
+          <Heading lineHeight={1.1}>
+            <Text
+              as={"span"}
+              fontSize={{ base: "5xl", sm: "6xl", md: "7xl", lg: "8xl" }}
+            >
+              Helping{" "}
+            </Text>
             <br />
             <div style={{ zIndex: 10 }}>
               <Text
                 as="span"
                 bgGradient="linear(to-r, red.400,pink.400)"
                 bgClip="text"
+                fontSize={{ base: "5xl", sm: "6xl", md: "7xl", lg: "8xl" }}
               >
                 Hand
               </Text>{" "}

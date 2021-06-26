@@ -40,7 +40,7 @@ const HelpPostListings: React.FC = (props) => {
   };
 
   return (
-    <VStack maxW={"4xl"} alignItems="flex-start">
+    <VStack maxW={"6xl"} alignItems="flex-start">
       <Heading as="h1" fontSize={["4xl", "6xl"]}>
         <span
           style={{
@@ -71,16 +71,19 @@ const HelpPostListings: React.FC = (props) => {
         ) : (
           data &&
           data.map(
-            ({ id, author, title, datetimeISO, description, tags }: any) => (
-              <HelpPost
-                key={id}
-                author={author}
-                title={title}
-                description={description}
-                tags={tags}
-                datetimeISO={datetimeISO}
-              />
-            )
+            ({ id, author, title, datetimeISO, description, tags }: any) => {
+              return (
+                <HelpPost
+                  key={id}
+                  id={id}
+                  author={author}
+                  title={title}
+                  description={description}
+                  tags={tags}
+                  datetimeISO={datetimeISO}
+                />
+              );
+            }
           )
         )}
       </Box>
