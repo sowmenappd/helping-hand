@@ -1,6 +1,7 @@
 import React from "react";
 import { VStack, Heading, Box } from "@chakra-ui/react";
 import SearchSkeleton from "./SearchSkeleton";
+import HelpPost from "./HelpPost";
 
 const HelpPostSearchResults: React.FC<{
   searchText: string;
@@ -34,7 +35,11 @@ const HelpPostSearchResults: React.FC<{
         maxW={["xl", "xl", "xl", "2xl", "4xl"]}
         alignItems="flex-start"
       >
-        <SearchSkeleton loading={loading} />
+        {loading ? (
+          <SearchSkeleton loading={loading} />
+        ) : results ? (
+          results.map((r: any) => <HelpPost key={r.id} {...r} />)
+        ) : null}
       </Box>
     </VStack>
   );

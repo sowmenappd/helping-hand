@@ -54,6 +54,10 @@ const postsReducer = (state: any, action: Dispatch) => {
       state.posts.loading = true;
       state.posts.error = false;
       break;
+    case POST_ACTIONS.SEARCH_POSTS:
+      state.posts.loading = true;
+      state.posts.error = false;
+      break;
     case POST_ACTIONS.FETCH_POSTS_SUCCESS:
       state.posts.data = action.payload;
       state.posts.loading = false;

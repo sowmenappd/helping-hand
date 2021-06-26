@@ -22,12 +22,13 @@ import HelpPostListings from "../components/HelpPostListings";
 import SearchBar from "../components/SearchBar";
 import { useState } from "react";
 
-import { HelpPostProps } from "../components/HelpPost";
 import HelpPostSearchResults from "../components/HelpPostSearchResults";
 import PostHelpSection from "../components/PostHelpSection";
 import { useAuthContext } from "../store/auth";
 import PostView from "./PostView";
 import { usePostsContext } from "../store/posts";
+import { POST_ACTIONS } from "../store/types";
+import PostController from "../controller/posts";
 
 export default function Main() {
   const [authState] = useAuthContext();
@@ -58,14 +59,29 @@ export default function Main() {
 
 const MainView = () => {
   const [searchText, setSearchText] = useState("");
-  const [searchLoading, setSearchLoading] = useState(false);
 
-  const [searchResults, setSearchResults] = useState([]);
-
-  const [{ isViewingPost, viewPost }] = usePostsContext();
+  const [{ isViewingPost, viewPost, posts }, dispatch] = usePostsContext();
+  const [{ token }] = useAuthContext();
 
   useEffect(() => {
-    // TODO: fetch search results from API
+    if (searchText.length < 4) return;
+    dispatch({
+      type: POST_ACTIONS.SEARCH_POSTS,
+    });
+    PostController.search(searchText, token)
+      .then(({ data }) => {
+        dispatch({
+          type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
+          payload: data,
+        });
+        console.log(data);
+      })
+      .catch((err) => {
+        dispatch({
+          type: POST_ACTIONS.FETCH_POSTS_ERROR,
+        });
+        console.log(err);
+      });
   }, [searchText]);
 
   return (
@@ -81,9 +97,9 @@ const MainView = () => {
           <Route exact path="/h">
             {searchText?.length > 3 ? (
               <HelpPostSearchResults
-                loading={true || searchLoading}
-                results={searchResults}
-                searchText={searchText} //TODO: implement component
+                loading={posts.loading}
+                results={posts.data}
+                searchText={searchText}
               />
             ) : (
               <>
