@@ -17,6 +17,11 @@ const initialState: any = {
   currentPostsType: POST_TYPE.HELP,
   isViewingPost: false,
   viewPost: null,
+  messages: {
+    data: [],
+    loading: false,
+    error: false,
+  },
 };
 
 const PostsContext = createContext(initialState);
@@ -79,6 +84,18 @@ const postsReducer = (state: any, action: Dispatch) => {
       state.isViewingPost = false;
       state.viewPost = null;
       break;
+    case POST_ACTIONS.FETCH_VIEW_POST_MESSAGES:
+      state.messages.data = [];
+      state.messages.loading = true;
+      state.messages.error = false;
+      break;
+    case POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS:
+      state.messages.data = action.payload;
+      state.messages.loading = false;
+      break;
+    case POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_ERROR:
+      state.messages.error = true;
+      state.messages.loading = false;
   }
   console.log(action);
 };
