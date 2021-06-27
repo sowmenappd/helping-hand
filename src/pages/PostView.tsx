@@ -23,7 +23,6 @@ import {
 } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import { getRelativeTimestring } from "../util/time";
-import PostController from "../controller/posts";
 
 import svg1 from "../images/new_friend.svg";
 import { useAuthContext } from "../store/auth";
@@ -71,7 +70,7 @@ const PostView: React.FC<{
             <Divider pt={2} orientation="horizontal" />
             <PostedAtMessage
               datetimeISO={post.datetimeISO}
-              // username={"sowmenrahman"}
+              username={post.friends ? post.username : "someone"}
               onUserPress={() => null}
             />
             {!messages.loading &&
@@ -83,14 +82,13 @@ const PostView: React.FC<{
                       "Hello there, I think I might be able to help you!";
                     addPostMessage(
                       post.id,
+                      post.username,
                       username,
                       firstMsg,
+                      true,
                       dispatch,
                       token
                     );
-                    // post.id --> postId
-                    // message --> "Hello there, I think I might be able to help you!"
-                    // owner   --> authstate.username
                   }}
                 />
               ) : (

@@ -5,14 +5,21 @@ class PostController {
 
   private constructQueryByPostType(
     schema: string,
+    myUsername: string,
     type: "help" | "social",
-    orderBy: string = "__createdtime__",
-    order: string = "DESC"
+    orderBy: string,
+    order: string
   ) {
-    return `SELECT posts.id, title, description, username, author, datetimeISO, connections.blocked, connections.friends, tags
-    FROM ${schema}.posts
-  FULL OUTER JOIN ${schema}.connections
-  ON (posts.username = connections.user1 OR posts.username = connections.user2) WHERE posts.type = \"${type}\" AND connections.blocked = "false" ORDER BY posts.${orderBy} ${order}`;
+    return `
+    SELECT 
+    posts.id, title, description, tags, username, author, datetimeISO, 
+    connections.blocked, connections.friends 
+    FROM ${schema}.posts 
+    FULL OUTER JOIN ${schema}.connections 
+    ON (posts.username = connections.user1 OR posts.username = connections.user2) 
+    WHERE (posts.type = \"${type}\" AND (connections.blocked = "false" OR NOT connections.blocked OR posts.username=\"${myUsername}\"))
+    ORDER BY posts.${orderBy} ${order};
+    `;
     // return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\" ORDER BY ${orderBy} ${order}`;
   }
 
@@ -39,8 +46,20 @@ class PostController {
     return q;
   }
 
-  public async fetchPosts(type: "help" | "social", token: string) {
-    const query = this.constructQueryByPostType(process.env.NODE_ENV, type);
+  public async fetchPosts(
+    type: "help" | "social",
+    ownUsername: string,
+    token: string,
+    orderBy: string = "__createdtime__",
+    order: string = "DESC"
+  ) {
+    const query = this.constructQueryByPostType(
+      process.env.NODE_ENV,
+      ownUsername,
+      type,
+      orderBy,
+      order
+    );
     const config = {
       headers: {
         authorization: `Bearer ${token}`,
@@ -72,19 +91,25 @@ class PostController {
 
   public async addPostMessage(
     postId: string,
+    postOwner: string,
     message: string,
     owner: string,
+    firstTime: boolean,
     token: string
   ) {
-    return db.addOne(
-      "post_messages",
-      { postId, message, owner },
-      {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const config = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    };
+    if (firstTime) {
+      await db.addOne(
+        "connections",
+        { blocked: false, friends: false, user1: postOwner, user2: owner },
+        config
+      );
+    }
+    return db.addOne("post_messages", { postId, message, owner }, config);
   }
 
   public async search(query: string, token: string) {

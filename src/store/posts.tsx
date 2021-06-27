@@ -136,7 +136,7 @@ export const addPost = async (
     dispatch({
       type: POST_ACTIONS.ADD_POST_SUCCESS,
     });
-    fetchPosts(type, dispatch, token);
+    fetchPosts(type, post.username, dispatch, token);
   } catch (err) {
     dispatch({
       type: POST_ACTIONS.ADD_POST_ERROR,
@@ -148,12 +148,21 @@ export const addPost = async (
 
 export const addPostMessage = async (
   postId: string,
+  postOwner: string,
   username: string,
   message: string,
+  firstTime: boolean,
   dispatch: (obj: Dispatch) => void,
   token: string
 ) => {
-  PostController.addPostMessage(postId, message, username, token)
+  PostController.addPostMessage(
+    postId,
+    postOwner,
+    message,
+    username,
+    firstTime,
+    token
+  )
     .then(() => {
       dispatch({
         type: POST_ACTIONS.HIDE_VIEW_POST,
@@ -164,6 +173,7 @@ export const addPostMessage = async (
 
 export const fetchPosts = async (
   type: "help" | "social",
+  ownUsername: string,
   dispatch: (dispatchObj: Dispatch) => void,
   token: string
 ) => {
@@ -173,7 +183,7 @@ export const fetchPosts = async (
   });
 
   try {
-    const { data } = await PostController.fetchPosts(type, token);
+    const { data } = await PostController.fetchPosts(type, ownUsername, token);
     console.log(data);
     dispatch({
       type: POST_ACTIONS.FETCH_POSTS_SUCCESS,

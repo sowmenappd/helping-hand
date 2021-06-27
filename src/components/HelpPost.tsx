@@ -18,6 +18,7 @@ import { MdReport as ReportIcon } from "react-icons/md";
 import { usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import { getRelativeTimestring } from "../util/time";
+import { useAuthContext } from "../store/auth";
 
 interface PostTagsProps {
   tags: Array<string>;
@@ -41,6 +42,7 @@ const PostTags: React.FC<PostTagsProps> = (props) => {
 interface PostAuthorProps {
   datetimeISO: Date;
   name: string;
+  username: string;
   imgUrl: string;
   hidden: boolean;
 }
@@ -75,10 +77,10 @@ export const PostAuthor: React.FC<PostAuthorProps> = (props) => {
 export interface HelpPostProps {
   id: string;
   author: {
-    username: string;
     name: string; // combine first_name, last_name
     img: string;
   };
+  username: string;
   datetimeISO: string;
   title: string;
   description: string;
@@ -87,7 +89,16 @@ export interface HelpPostProps {
 }
 
 const HelpPost: React.FC<HelpPostProps> = (props) => {
-  const { id, hidden, author, title, description, datetimeISO, tags } = props;
+  const {
+    id,
+    username,
+    hidden,
+    author,
+    title,
+    description,
+    datetimeISO,
+    tags,
+  } = props;
 
   const [_, dispatch] = usePostsContext();
 
@@ -144,6 +155,7 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
               hidden={hidden}
               imgUrl={author.img}
               name={author.name}
+              username={username}
               datetimeISO={new Date(datetimeISO)} //TODO: add date to post
             />
             <Box display="flex" flexDirection="row">

@@ -67,6 +67,8 @@ const MainView = () => {
     searchPosts(searchText, dispatch, token);
   }, [searchText]);
 
+  console.log("viewPost", viewPost);
+
   return (
     <Box mt={8} p={[3, 3, 6]} pr={[6]}>
       <SearchBar

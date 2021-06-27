@@ -17,7 +17,12 @@ const HelpPostListings: React.FC = (props) => {
   const { data, loading, error } = posts;
 
   useEffect(() => {
-    fetchPosts(state.currentPostsType, dispatch, authState.token);
+    fetchPosts(
+      state.currentPostsType,
+      authState.username,
+      dispatch,
+      authState.token
+    );
   }, [state.currentPostsType]);
 
   return (
@@ -54,6 +59,7 @@ const HelpPostListings: React.FC = (props) => {
           data.map(
             ({
               id,
+              username,
               author,
               title,
               datetimeISO,
@@ -66,11 +72,12 @@ const HelpPostListings: React.FC = (props) => {
                   key={id}
                   id={id}
                   author={author}
+                  username={username}
                   title={title}
                   description={description}
                   tags={tags}
                   datetimeISO={datetimeISO}
-                  hidden={!friends}
+                  hidden={username === authState.username ? false : !friends}
                 />
               );
             }
