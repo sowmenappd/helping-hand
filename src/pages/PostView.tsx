@@ -19,6 +19,7 @@ import {
 import {
   addPostMessage,
   fetchPostMesssages,
+  hideViewPost,
   usePostsContext,
 } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
@@ -48,9 +49,7 @@ const PostView: React.FC<{
   return (
     <Modal
       onClose={() => {
-        dispatch({
-          type: POST_ACTIONS.HIDE_VIEW_POST,
-        });
+        hideViewPost(dispatch);
       }}
       isOpen={isOpen}
       isCentered

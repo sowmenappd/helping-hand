@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { TiArrowForward as ForwardIcon } from "react-icons/ti";
 import { MdReport as ReportIcon } from "react-icons/md";
-import { usePostsContext } from "../store/posts";
+import { usePostsContext, viewPost } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import { getRelativeTimestring } from "../util/time";
 import { useAuthContext } from "../store/auth";
@@ -172,12 +172,7 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
                 rounded="2xl"
                 color="blue.400"
                 bgColor="transparent"
-                onClick={() =>
-                  dispatch({
-                    type: POST_ACTIONS.VIEW_POST,
-                    payload: props,
-                  })
-                }
+                onClick={() => viewPost(props, dispatch)}
               >
                 <ForwardIcon size={28} />
               </IconButton>

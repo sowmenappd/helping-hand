@@ -169,6 +169,19 @@ export const addPostMessage = async (
     .catch((err) => console.log(err));
 };
 
+export const viewPost = (post: any, dispatch: (action: Dispatch) => void) => {
+  dispatch({
+    type: POST_ACTIONS.VIEW_POST,
+    payload: post,
+  });
+};
+
+export const hideViewPost = (dispatch: (action: Dispatch) => void) => {
+  dispatch({
+    type: POST_ACTIONS.HIDE_VIEW_POST,
+  });
+};
+
 export const fetchPosts = async (
   type: "help" | "social",
   ownUsername: string,
