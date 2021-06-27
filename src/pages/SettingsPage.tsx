@@ -7,10 +7,17 @@ import {
   Text,
   Input,
   Textarea,
+  HStack,
+  Avatar,
+  Button,
 } from "@chakra-ui/react";
+import { useAuthContext } from "../store/auth";
 
 const SettingsPage = () => {
   const disabled = true;
+
+  const [state] = useAuthContext();
+  const { first_name, last_name, bio, username, imgB64 } = state;
 
   return (
     <VStack spacing={4} alignItems="flex-start">
@@ -40,23 +47,35 @@ const SettingsPage = () => {
               label="first_name"
               labelDisplay="First name"
               placeholder="Loading.."
-              value=""
+              value={first_name}
               disabled={disabled}
             />
             <SettingsInputField
               label="last_name"
               labelDisplay="Last name"
               placeholder="Loading.."
-              value=""
+              value={last_name}
               disabled={disabled}
             />
           </Stack>
           <Stack direction={["column", "column", "row"]} px={2} pt={4}>
             <SettingsInputField
+              label="username"
+              labelDisplay="Username"
+              placeholder="Loading.."
+              value={username}
+              disabled={disabled}
+              small
+            />
+            <SettingsPhotoField img={imgB64} />
+          </Stack>
+
+          <Stack direction={["column", "column", "row"]} px={2} pt={4}>
+            <SettingsInputField
               label="bio"
               labelDisplay="Personal biography"
               placeholder="Loading.."
-              value="..."
+              value={bio}
               disabled={disabled}
               textArea
             />
@@ -74,9 +93,10 @@ const SettingsInputField: React.FC<{
   value: any;
   disabled: boolean;
   textArea?: boolean;
+  small?: boolean;
 }> = (props) => {
   return (
-    <VStack maxW="full" w="full" spacing={2} align="self-start">
+    <VStack maxW="full" w="full" spacing={2} align="flex-start">
       <Text fontSize="lg" fontWeight="extrabold">
         {props.labelDisplay}
       </Text>
@@ -99,9 +119,30 @@ const SettingsInputField: React.FC<{
           isDisabled={props.disabled}
           size="lg"
           fontSize="xl"
+          maxW={props.small ? "sm" : "-moz-initial"}
         />
       )}
     </VStack>
+  );
+};
+
+const SettingsPhotoField: React.FC<{ img: any }> = (props) => {
+  return (
+    <HStack
+      maxW="full"
+      w="full"
+      spacing={2}
+      pt={2}
+      align={"center"}
+      justify={["center", "flex-end"]}
+    >
+      <Box display="flex" flexDir="column" alignItems="center">
+        <Avatar src={props.img} size={"lg"} alt={"Avatar"} mb={2} />
+        <Button size="xs" colorScheme="linkedin">
+          Change
+        </Button>
+      </Box>
+    </HStack>
   );
 };
 

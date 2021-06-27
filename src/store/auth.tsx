@@ -1,12 +1,20 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useEffect, useReducer, useState } from "react";
 import produce from "immer";
 import { useContext } from "react";
 import { AUTH_ACTIONS, Dispatch } from "./types";
 import AuthController from "../controller/auth";
 
-export const initialState: any = {
-  username: "sowmenr1",
-  password: "test1234",
+const getState = () => {
+  const state = localStorage.getItem("p:auth");
+  if (state && state !== "undefined") {
+    return JSON.parse(state);
+  }
+  return null;
+};
+
+export const initialState: any = getState() || {
+  username: "",
+  password: "",
   imgB64: "",
   confirm_password: "",
   first_name: "",
@@ -19,6 +27,7 @@ export const initialState: any = {
 };
 
 const AuthContext = createContext(initialState);
+
 export const useAuthContext = () => {
   return useContext(AuthContext);
 };
@@ -65,12 +74,15 @@ const authReducer = (state: any, action: Dispatch) => {
       state.loading = false;
       break;
   }
-
   console.log(action);
 };
 
 const AuthStoreProvider: React.FC<any> = (props) => {
   const [state, dispatch] = useReducer(produce(authReducer), initialState);
+
+  useEffect(() => {
+    localStorage.setItem("p:auth", JSON.stringify(state));
+  }, [state]);
 
   return (
     <AuthContext.Provider value={[state, dispatch]}>
