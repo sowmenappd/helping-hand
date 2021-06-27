@@ -104,7 +104,7 @@ const LoginCard: React.FC<{
 
   const handleLogin = async () => {
     login({ username, password }, dispatch, () => {
-      history.push("/h");
+      history.push("/home");
     });
   };
 

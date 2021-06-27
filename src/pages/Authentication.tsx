@@ -10,7 +10,7 @@ const Authentication = () => {
 
   const authState = useAuthContext();
   if (authState.token) {
-    history.push("/h");
+    history.push("/home");
   }
   return (
     <Layout>

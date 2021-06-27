@@ -70,7 +70,6 @@ class PostController {
         (post: any, idx: Number, self: any) =>
           idx === self.findIndex((p: any) => p.id === post.id)
       );
-      console.log("posts", uniquePosts);
       return uniquePosts;
     });
   }

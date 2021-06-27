@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import Authentication from "../pages/Authentication";
-import Main from "../pages/Main";
+import Main from "../pages/MainPage";
 
 const Layout = () => {
   return (
@@ -11,7 +11,7 @@ const Layout = () => {
         <Route path="/" exact>
           <Authentication />
         </Route>
-        <Route path="/h" exact>
+        <Route path="/home">
           <Main />
         </Route>
       </Switch>
