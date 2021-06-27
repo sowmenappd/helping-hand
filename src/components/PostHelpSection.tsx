@@ -132,8 +132,9 @@ const PostHelpSection = () => {
                   .map((t) => t.trim())
               )
             }
-            borderWidth="2px"
-            placeholder="Add a subject"
+            borderWidth="0px"
+            fontSize="larger"
+            placeholder="Add tags.."
             onFocus={() => handleTextFocus(true)}
           />
           {btnVisible && (

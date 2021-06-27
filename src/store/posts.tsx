@@ -181,11 +181,11 @@ export const fetchPosts = async (
   });
 
   try {
-    const { data } = await PostController.fetchPosts(type, ownUsername, token);
-    console.log(data);
+    const posts = await PostController.fetchPosts(type, ownUsername, token);
+    console.log(posts);
     dispatch({
       type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
-      payload: data,
+      payload: posts,
     });
   } catch (err) {
     console.log(err);

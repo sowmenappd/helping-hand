@@ -12,15 +12,14 @@ class PostController {
   ) {
     return `
     SELECT 
-    posts.id, title, description, tags, username, author, datetimeISO, 
+    DISTINCT posts.id, title, description, tags, username, author, datetimeISO, 
     connections.blocked, connections.friends 
     FROM ${schema}.posts 
     FULL OUTER JOIN ${schema}.connections 
     ON (posts.username = connections.user1 OR posts.username = connections.user2) 
-    WHERE (posts.type = \"${type}\" AND (connections.blocked = "false" OR NOT connections.blocked OR posts.username=\"${myUsername}\"))
+    WHERE posts.type = \"${type}\" AND (connections.blocked = false OR NOT connections.blocked OR posts.username=\"${myUsername}\")
     ORDER BY posts.${orderBy} ${order};
     `;
-    // return `SELECT * FROM ${schema}.posts WHERE type = \"${type}\" ORDER BY ${orderBy} ${order}`;
   }
 
   private constructQueryForSearchKeywords(searchTerms: string[]) {
@@ -66,7 +65,14 @@ class PostController {
       },
     };
 
-    return db.executeSQLQuery(query, config);
+    return db.executeSQLQuery(query, config).then(({ data: posts }) => {
+      let uniquePosts = posts.filter(
+        (post: any, idx: Number, self: any) =>
+          idx === self.findIndex((p: any) => p.id === post.id)
+      );
+      console.log("posts", uniquePosts);
+      return uniquePosts;
+    });
   }
 
   public async fetchPostMessages(post_id: string, token: string) {
