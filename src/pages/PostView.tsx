@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Modal,
@@ -17,10 +17,13 @@ import {
   Image,
   Input,
   useBreakpointValue,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
+import { IoMdClose as CloseIcon, IoMdSend as SendIcon } from "react-icons/io";
 import {
   addPostMessage,
-  fetchPostMesssages,
+  fetchPostMessages,
   hideViewPost,
   usePostsContext,
 } from "../store/posts";
@@ -42,11 +45,11 @@ const PostView: React.FC<{
 
   useEffect(() => {
     if (!post) return;
-    fetchPostMesssages(post.id, dispatch, token);
+    fetchPostMessages(post.id, dispatch, token);
   }, [post]);
 
   const modalSize = useBreakpointValue({
-    base: "full",
+    base: "xs",
     xs: "xs",
     sm: "full",
     md: "full",
@@ -60,7 +63,7 @@ const PostView: React.FC<{
   if (!post) return null;
 
   const Title = () => (
-    <Heading mt={"20px"} fontSize="4xl" px={[2]}>
+    <Heading mt={"20px"} fontSize="4xl" px={2}>
       {post.title}
     </Heading>
   );
@@ -75,28 +78,61 @@ const PostView: React.FC<{
       size={modalSize}
     >
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent w="full">
         {showTitleInHeader && (
-          <ModalHeader>
+          <ModalHeader w="full">
             <Title />
+            <ModalCloseButton size="lg" mt={10} mr={4} />
           </ModalHeader>
         )}
-        <ModalCloseButton mt={10} size="lg" mr={4} />
         <ModalBody px={10}>
           <Stack direction="column">
             {!showTitleInHeader && (
-              <Box>
+              <Box
+                w="full"
+                h="fit-content"
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                marginTop="40"
+              >
                 <Title />
+                <CloseIcon size={30} onClick={() => hideViewPost(dispatch)} />
               </Box>
             )}
-            <Box>{post.description}</Box>
+            <Box px={2}>{post.description}</Box>
             <Divider pt={2} orientation="horizontal" />
-            <PostedAtMessage
-              datetimeISO={post.datetimeISO}
-              hidden={username === post.username ? false : !post.friends}
-              username={post.friends ? post.username : "Someone"}
-              onUserPress={() => null}
-            />
+            <Box
+              display="flex"
+              w="full"
+              justifyContent={
+                post.username === username || post.friends
+                  ? "flex-end"
+                  : "space-between"
+              }
+              alignItems="flex-start"
+              pt={4}
+            >
+              <MakeFriendsNotice
+                hidden={post.username === username || post.friends}
+                onMakeFriends={() => {
+                  // TODO: add function that adds an entry to connections table with the users
+                  // TODO: add a notifications table entry
+                }}
+              />
+              <PostedAtMessage
+                datetimeISO={post.datetimeISO}
+                hidden={username === post.username ? false : !post.friends}
+                username={
+                  username === post.username
+                    ? "You"
+                    : post.friends
+                    ? post.username
+                    : "Someone"
+                }
+                onUserPress={() => null}
+              />
+            </Box>
             {!messages.loading &&
               (messages.data.length == 0 ? (
                 <FirstTimeNotice
@@ -121,16 +157,26 @@ const PostView: React.FC<{
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Stack direction={["row"]} w="full">
-            <Box w="full">
-              <Input variant="filled" placeholder="Send a message..." />
-            </Box>
-            <Box>
-              <Button colorScheme="red" onClick={() => hideViewPost(dispatch)}>
-                Close
-              </Button>
-            </Box>
-          </Stack>
+          <ChatPanel
+            onClose={() => hideViewPost(dispatch)}
+            onSendMessage={(message) => {
+              if (message.length < 3 || !post.id || !post.username) return;
+
+              console.log(post.id);
+              console.log(post.username);
+              console.log(message, "sent");
+              addPostMessage(
+                post.id,
+                post.username,
+                username,
+                message,
+                false,
+                dispatch,
+                token
+              );
+              // TODO: add message to post_messages table
+            }}
+          />
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -144,7 +190,7 @@ const PostedAtMessage: React.FC<{
   onUserPress: (username: string) => void;
 }> = (props) => (
   <Box px={4} display="flex" justifyContent="flex-end">
-    <Text as="code" pt={6}>
+    <Text as="code">
       {!props.hidden ? (
         <Button onClick={() => props.onUserPress?.(props.username || "")}>
           <u>{props.username}</u>
@@ -167,6 +213,27 @@ const PostedAtMessage: React.FC<{
     </Text>
   </Box>
 );
+
+const MakeFriendsNotice: React.FC<{
+  hidden: boolean;
+  onMakeFriends: () => void;
+}> = (props) => {
+  return props.hidden ? null : (
+    <Stack display="flex" alignItems="flex-start" justify="center">
+      <Heading size={"sm"} maxW="full" pr={2}>
+        You're not friends with this person.
+      </Heading>
+      <Button
+        bg="green.100"
+        color="green.600"
+        size={"sm"}
+        onClick={props.onMakeFriends}
+      >
+        Make friend
+      </Button>
+    </Stack>
+  );
+};
 
 const FirstTimeNotice: React.FC<{ onMessageUser: () => void }> = (props) => (
   <Box
@@ -218,19 +285,29 @@ const MessageStack: React.FC<{ messages: any[]; username: string }> = ({
           display="flex"
           h="fit-content"
           justifyContent={username === owner ? "flex-end" : "flex-start"}
+          my={2}
         >
           <Box
             bg="gray.100"
             rounded="3xl"
             flexDir={"row-reverse"}
-            w="fit-content"
+            maxW={["xs", "sm", "md", "xl"]}
+            w={"fit-content"}
             p={3}
             px={4}
           >
             {
               <>
-                <b>{"@" + owner.toString()}</b>
-                <br />
+                <div
+                  style={{
+                    padding: 0,
+                    margin: 0,
+                    textAlign: username === owner ? "right" : "left",
+                  }}
+                >
+                  <b>{"@" + owner.toString()}</b>
+                  <br />
+                </div>
                 <p style={{ paddingLeft: 5 }}>{" " + message}</p>
               </>
             }
@@ -238,6 +315,40 @@ const MessageStack: React.FC<{ messages: any[]; username: string }> = ({
         </Box>
       ))}
     </Box>
+  );
+};
+
+const ChatPanel: React.FC<{
+  onSendMessage: (msg: string) => void;
+  onClose: () => void;
+}> = (props) => {
+  const [msg, setMessage] = useState("");
+
+  return (
+    <Stack direction={["row"]} w="full">
+      <Box w="full">
+        <InputGroup>
+          <Input
+            value={msg}
+            onChange={({ currentTarget: { value } }) => setMessage(value)}
+            variant="filled"
+            placeholder="Send a message..."
+          />
+          <InputRightElement
+            children={<SendIcon color="blue.500" />}
+            onClick={() => {
+              props.onSendMessage?.(msg.trim());
+              setMessage("");
+            }}
+          />
+        </InputGroup>
+      </Box>
+      <Box>
+        <Button colorScheme="red" onClick={props.onClose}>
+          Close
+        </Button>
+      </Box>
+    </Stack>
   );
 };
 

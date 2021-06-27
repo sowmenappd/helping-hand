@@ -75,7 +75,7 @@ class PostController {
   }
 
   public async fetchPostMessages(post_id: string, token: string) {
-    const sqlQuery = `SELECT * from ${process.env.NODE_ENV}.post_messages WHERE postId = \"${post_id}\"`;
+    const sqlQuery = `SELECT * from ${process.env.NODE_ENV}.post_messages WHERE postId = \"${post_id}\" ORDER BY __createdtime__ ASC`;
 
     const config = {
       headers: {

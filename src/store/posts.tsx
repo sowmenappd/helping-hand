@@ -155,7 +155,7 @@ export const addPostMessage = async (
   dispatch: (obj: Dispatch) => void,
   token: string
 ) => {
-  PostController.addPostMessage(
+  return PostController.addPostMessage(
     postId,
     postOwner,
     message,
@@ -164,7 +164,7 @@ export const addPostMessage = async (
     token
   )
     .then(() => {
-      return fetchPostMesssages(postId, dispatch, token);
+      return fetchPostMessages(postId, dispatch, token);
     })
     .catch((err) => console.log(err));
 };
@@ -205,7 +205,7 @@ export const fetchPosts = async (
   }
 };
 
-export const fetchPostMesssages = async (
+export const fetchPostMessages = async (
   postId: string,
   dispatch: (dispatchObj: Dispatch) => void,
 
