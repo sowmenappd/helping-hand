@@ -29,6 +29,7 @@ import PostView from "./PostView";
 import { searchPosts, usePostsContext } from "../store/posts";
 import { POST_ACTIONS } from "../store/types";
 import PostController from "../controller/posts";
+import Sidebar from "../components/Sidebar";
 
 export default function Main() {
   const [authState] = useAuthContext();
@@ -96,38 +97,6 @@ const MainView = () => {
           </Route>
         </Switch>
       </Router>
-    </Box>
-  );
-};
-
-interface SidebarUserProps {
-  name: string;
-  username: string;
-  bio: string;
-  tags: string[];
-  imgB64: string;
-}
-
-interface SidebarProps {
-  user: SidebarUserProps;
-  stats: null;
-}
-
-const Sidebar: React.FC<SidebarProps> = (props) => {
-  const { user } = props;
-
-  return (
-    <Box p={[6, 6, 6, 12]}>
-      <UserProfileCard user={user} />
-      <UserStatsCard
-        stats={{
-          name: "Lindsey James",
-          username: "@lindsey_jam3s",
-          description:
-            "Actress, musician, songwriter and artist. PM for work inquires or #tag me in your posts",
-          tags: ["art", "photography", "music"],
-        }}
-      />
     </Box>
   );
 };

@@ -164,9 +164,7 @@ export const addPostMessage = async (
     token
   )
     .then(() => {
-      dispatch({
-        type: POST_ACTIONS.HIDE_VIEW_POST,
-      });
+      return fetchPostMesssages(postId, dispatch, token);
     })
     .catch((err) => console.log(err));
 };
@@ -200,7 +198,7 @@ export const fetchPostMesssages = async (
 
   token: string
 ) => {
-  PostController.fetchPostMessages(postId, token)
+  return PostController.fetchPostMessages(postId, token)
     .then(({ data }) => {
       dispatch({
         type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,

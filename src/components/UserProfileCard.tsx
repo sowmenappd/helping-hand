@@ -7,7 +7,6 @@ import {
   Text,
   Image,
   Stack,
-  Button,
   Badge,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -90,27 +89,6 @@ const UserProfileCard: React.FC<Props> = (props) => {
               );
             })}
           </Box>
-        </Stack>
-
-        <Stack mt={4} direction={"row"} spacing={4}>
-          <Button
-            flex={1}
-            fontSize={"sm"}
-            rounded={"full"}
-            bg={"red.300"}
-            color={"white"}
-            boxShadow={
-              "0px 1px 25px -5px rgb(66 153 225 / 48%), 0 10px 10px -5px rgb(66 153 225 / 43%)"
-            }
-            _hover={{
-              bg: "red.400",
-            }}
-            _focus={{
-              bg: "red.400",
-            }}
-          >
-            Settings
-          </Button>
         </Stack>
       </Box>
     </Center>

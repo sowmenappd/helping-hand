@@ -70,7 +70,8 @@ const PostView: React.FC<{
             <Divider pt={2} orientation="horizontal" />
             <PostedAtMessage
               datetimeISO={post.datetimeISO}
-              username={post.friends ? post.username : "someone"}
+              hidden={username === post.username ? false : !post.friends}
+              username={post.friends ? post.username : "Someone"}
               onUserPress={() => null}
             />
             {!messages.loading &&
@@ -113,13 +114,14 @@ const PostView: React.FC<{
 };
 
 const PostedAtMessage: React.FC<{
+  hidden: boolean;
   username?: string;
   datetimeISO: string;
   onUserPress: (username: string) => void;
 }> = (props) => (
   <Box px={4} display="flex" justifyContent="flex-end">
     <Text as="code" pt={6}>
-      {props.username ? (
+      {!props.hidden ? (
         <Button onClick={() => props.onUserPress?.(props.username || "")}>
           <u>{props.username}</u>
         </Button>
