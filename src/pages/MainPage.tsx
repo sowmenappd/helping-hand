@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import { Box, Stack, StackDivider } from "@chakra-ui/react";
 
 import Layout from "../components/Layout";
@@ -19,52 +24,62 @@ import MessagesPage from "./MessagesPage";
 import NotificationsPage from "./NotificationsPage";
 
 export default function Main() {
-  const [authState] = useAuthContext();
-
   return (
     <Layout>
-      <Stack
-        divider={<StackDivider borderColor="gray.200" />}
-        spacing={5}
-        justify="center"
-        direction={["column", "column", "row"]}
-      >
-        <Sidebar
-          user={{
-            name: authState.first_name + authState.last_name,
-            username: authState.username,
-            imgB64: authState.imgB64,
-            bio: authState.bio,
-            tags: ["Fullstack", "Games", "Books", "React", "Typescript"],
-          }}
-          stats={null}
-        />
-        <MainView />
-      </Stack>
+      <MainView />
     </Layout>
   );
 }
 
 const MainView = () => {
+  const [authState] = useAuthContext();
+
   return (
-    <Box mt={8} p={[3, 3, 6]} pr={[6]}>
+    <Stack
+      divider={<StackDivider borderColor="gray.200" />}
+      spacing={5}
+      justify="center"
+      direction={["column", "column", "row"]}
+    >
       <Router>
         <Switch>
-          <Route path="/home" exact>
-            <AllPostsPage />
-          </Route>
-          <Route path="/home/settings">
-            <SettingsPage />
-          </Route>{" "}
-          <Route path="/home/messages">
-            <MessagesPage />
-          </Route>
-          <Route path="/home/notifications">
-            <NotificationsPage />
+          <Route path="/home">
+            {authState.token ? (
+              <Sidebar
+                user={{
+                  name: authState.first_name + authState.last_name,
+                  username: authState.username,
+                  imgB64: authState.imgB64,
+                  bio: authState.bio,
+                  tags: ["Fullstack", "Games", "Books", "React", "Typescript"],
+                }}
+                stats={null}
+              />
+            ) : (
+              <Redirect to="/" />
+            )}
           </Route>
         </Switch>
       </Router>
-    </Box>
+      <Box mt={8} p={[3, 3, 6]} pr={[6]}>
+        <Router>
+          <Switch>
+            <Route path="/home" exact>
+              <AllPostsPage />
+            </Route>
+            <Route path="/home/settings">
+              <SettingsPage />
+            </Route>
+            <Route path="/home/messages">
+              <MessagesPage />
+            </Route>
+            <Route path="/home/notifications">
+              <NotificationsPage />
+            </Route>
+          </Switch>
+        </Router>
+      </Box>
+    </Stack>
   );
 };
 

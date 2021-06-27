@@ -56,10 +56,16 @@ const authReducer = (state: any, action: Dispatch) => {
       state.last_name = action.payload.last_name;
       state.bio = action.payload.bio;
       state.imgB64 = action.payload.imgB64;
+      localStorage.setItem("p:auth", JSON.stringify(state));
       break;
     case AUTH_ACTIONS.LOGIN_FAILED:
       state.error = action.payload;
       state.loading = false;
+      break;
+    case AUTH_ACTIONS.LOGOUT:
+      state = initialState;
+      localStorage.setItem("p:auth", "");
+
       break;
     case AUTH_ACTIONS.SIGNUP:
       state.error = "";
@@ -80,9 +86,9 @@ const authReducer = (state: any, action: Dispatch) => {
 const AuthStoreProvider: React.FC<any> = (props) => {
   const [state, dispatch] = useReducer(produce(authReducer), initialState);
 
-  useEffect(() => {
-    localStorage.setItem("p:auth", JSON.stringify(state));
-  }, [state]);
+  // useEffect(() => {
+  //   localStorage.setItem("p:auth", JSON.stringify(state));
+  // }, [state]);
 
   return (
     <AuthContext.Provider value={[state, dispatch]}>
@@ -122,6 +128,13 @@ export const login = async (
       payload: err.message,
     });
   }
+};
+
+export const logout = (dispatch: (obj: Dispatch) => void) => {
+  localStorage.setItem("p:auth", "");
+  dispatch({
+    type: AUTH_ACTIONS.LOGOUT,
+  });
 };
 
 export const signup = async (

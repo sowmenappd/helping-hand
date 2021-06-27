@@ -1,10 +1,20 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+} from "react-router-dom";
+
+import { useAuthContext } from "../store/auth";
 
 import Authentication from "../pages/Authentication";
 import Main from "../pages/MainPage";
 
 const Layout = () => {
+  const [auth] = useAuthContext();
+
   return (
     <Router>
       <Switch>
@@ -12,7 +22,7 @@ const Layout = () => {
           <Authentication />
         </Route>
         <Route path="/home">
-          <Main />
+          {auth.token ? <Main /> : <Redirect to="/" />}
         </Route>
       </Switch>
     </Router>
