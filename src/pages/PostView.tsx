@@ -15,6 +15,8 @@ import {
   Divider,
   Tooltip,
   Image,
+  Input,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   addPostMessage,
@@ -22,7 +24,6 @@ import {
   hideViewPost,
   usePostsContext,
 } from "../store/posts";
-import { POST_ACTIONS } from "../store/types";
 import { getRelativeTimestring } from "../util/time";
 
 import svg1 from "../images/new_friend.svg";
@@ -44,7 +45,25 @@ const PostView: React.FC<{
     fetchPostMesssages(post.id, dispatch, token);
   }, [post]);
 
+  const modalSize = useBreakpointValue({
+    base: "full",
+    xs: "xs",
+    sm: "full",
+    md: "full",
+  });
+
+  const showTitleInHeader = useBreakpointValue({
+    xs: false,
+    sm: false,
+    md: true,
+  });
   if (!post) return null;
+
+  const Title = () => (
+    <Heading mt={"20px"} fontSize="4xl" px={[2]}>
+      {post.title}
+    </Heading>
+  );
 
   return (
     <Modal
@@ -53,18 +72,23 @@ const PostView: React.FC<{
       }}
       isOpen={isOpen}
       isCentered
-      size="full"
+      size={modalSize}
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader px={10}>
-          <Heading mt={"50"} fontSize="5xl">
-            {post.title}
-          </Heading>
-        </ModalHeader>
-        <ModalCloseButton />
+        {showTitleInHeader && (
+          <ModalHeader>
+            <Title />
+          </ModalHeader>
+        )}
+        <ModalCloseButton mt={10} size="lg" mr={4} />
         <ModalBody px={10}>
           <Stack direction="column">
+            {!showTitleInHeader && (
+              <Box>
+                <Title />
+              </Box>
+            )}
             <Box>{post.description}</Box>
             <Divider pt={2} orientation="horizontal" />
             <PostedAtMessage
@@ -97,15 +121,16 @@ const PostView: React.FC<{
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button
-            onClick={() =>
-              dispatch({
-                type: POST_ACTIONS.HIDE_VIEW_POST,
-              })
-            }
-          >
-            Close
-          </Button>
+          <Stack direction={["row"]} w="full">
+            <Box w="full">
+              <Input variant="filled" placeholder="Send a message..." />
+            </Box>
+            <Box>
+              <Button colorScheme="red" onClick={() => hideViewPost(dispatch)}>
+                Close
+              </Button>
+            </Box>
+          </Stack>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -177,7 +202,14 @@ const MessageStack: React.FC<{ messages: any[]; username: string }> = ({
   username,
 }) => {
   return (
-    <Box display="flex" flexDir="column" py={[2]} px={[1, 5]} h="xl">
+    <Box
+      display="flex"
+      flexDir="column"
+      py={[2]}
+      px={[1, 5]}
+      h="xl"
+      overflowY="scroll"
+    >
       <Divider my={"4"} />
       {messages?.map(({ owner, message }) => (
         <Box
