@@ -24,6 +24,7 @@ const initialState: any = {
     loading: false,
     error: false,
   },
+  activeMessageThread: {},
 };
 
 const PostsContext = createContext(initialState);
@@ -98,6 +99,18 @@ const postsReducer = (state: any, action: Dispatch) => {
     case POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_ERROR:
       state.messages.error = true;
       state.messages.loading = false;
+      break;
+    case POST_ACTIONS.SET_ACTIVE_MESSAGE_THREAD:
+      const { user1, user2, postId, messages: allMessages } = action.payload;
+      const messages = allMessages.filter((msg: any) => {
+        return (
+          msg.postId === postId &&
+          ((msg.owner === user1 && msg.replyTo == user2) ||
+            (msg.owner === user2 && msg.replyTo == user1))
+        );
+      });
+      state.activeMessageThread = { messages, user1, user2, postId };
+      break;
   }
   console.log(action);
 };
@@ -152,23 +165,23 @@ export const addFriend = async (
   dispatch: (action: Dispatch) => void,
   token: string
 ) => {
-  return PostController.addConnection(true, false, user1, user2, token);
+  return PostController.updateConnection(true, false, user1, user2, token);
 };
 
 export const addPostMessage = async (
   post: any,
-  _username: string,
+  senderUsername: string,
+  replyToUsername: string,
   message: string,
   firstTime: boolean,
   dispatch: (obj: Dispatch) => void,
   token: string
 ) => {
-  const { id, username } = post;
   return PostController.addPostMessage(
-    id,
-    username,
+    post.id,
+    senderUsername,
+    replyToUsername,
     message,
-    _username,
     firstTime,
     token
   )
@@ -264,6 +277,15 @@ export const fetchPostMessagesForParticipatingUser = async (
       dispatch({
         type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
         payload: data,
+      });
+      dispatch({
+        type: POST_ACTIONS.SET_ACTIVE_MESSAGE_THREAD,
+        payload: {
+          user1: post.username,
+          user2: otherUser,
+          messages: data,
+          postId: post.id,
+        },
       });
       console.log(data);
     })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
   VStack,
   Box,
@@ -11,6 +11,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Text,
 } from "@chakra-ui/react";
 import { IoMdClose as CloseIcon } from "react-icons/io";
 import { BsChevronDown as DownArrow } from "react-icons/bs";
@@ -22,7 +23,14 @@ import MakeFriendsNotice from "../components/MakFriendsNotice";
 import FirstTimeNotice from "../components/FirstTimeNotice";
 
 import { useAuthContext } from "../store/auth";
-import { addPostMessage, hideViewPost, usePostsContext } from "../store/posts";
+import {
+  addFriend,
+  addPostMessage,
+  fetchPostMessagesForParticipatingUser,
+  hideViewPost,
+  usePostsContext,
+} from "../store/posts";
+import { POST_ACTIONS } from "../store/types";
 
 const isMine = (post: any, username: string): boolean => {
   return post.username === username;
@@ -33,12 +41,27 @@ const isMyFriendsPost = (post: any): boolean => {
 };
 
 const PostPage: React.FC = () => {
+  const history = useHistory();
   const [{ username, token }] = useAuthContext();
-  const [{ viewPost: post, messages }, dispatch] = usePostsContext();
+  const [
+    { viewPost: post, messages: allMessages, activeMessageThread },
+    dispatch,
+  ] = usePostsContext();
+
+  const { messages, user1, user2 } = activeMessageThread;
 
   const handleMessageUser = (msg: string, firsTime: boolean) => {
-    console.log(post.id);
-    addPostMessage(post, username, msg, firsTime, dispatch, token);
+    const senderUsername = username;
+    const replyToUsername = username === user1 ? user2 : user1;
+    addPostMessage(
+      post,
+      senderUsername,
+      replyToUsername,
+      msg,
+      firsTime,
+      dispatch,
+      token
+    );
   };
 
   return (
@@ -103,15 +126,19 @@ const PostPage: React.FC = () => {
                 >
                   <ParticipatingPostUsers
                     post={post}
-                    messages={messages.data}
+                    messages={allMessages.data}
                     myUsername={username}
+                    token={token}
                   />
-                  {!post.friends && (
+                  {messages && !messages[0].friends && (
                     <MakeFriendsNotice
                       // TODO: right now all messages from people to a certain person will appear at once for the post owner, need to group them and use a select dropdown to show a specific person's reply
                       onMakeFriends={() => {
+                        const _u = messages[0].owner;
+                        console.log(_u);
+                        if (!_u) return;
                         // TODO: add function that adds an entry to connections table with the users
-                        // addFriend(username);
+                        addFriend(post.username, _u, dispatch, token);
                         // TODO: add a notifications table entry
                       }}
                     />
@@ -131,8 +158,8 @@ const PostPage: React.FC = () => {
                 onUserPress={() => null}
               />
             </Stack>
-            {!messages.loading &&
-              (messages.data.length == 0 ? (
+            {messages &&
+              (messages.length == 0 ? (
                 <FirstTimeNotice
                   onMessageUser={() =>
                     handleMessageUser(
@@ -142,24 +169,40 @@ const PostPage: React.FC = () => {
                   }
                 />
               ) : (
-                <MessageStack
-                  isConnected={post.friends}
-                  username={username}
-                  messages={messages.data}
-                />
+                <MessageStack username={username} messages={messages} />
               ))}
           </Box>
 
-          {messages.data && messages.data.length > 1 && (
-            <Box w="full">
+          {(isMine(post, username) || (messages && messages.length > 1)) && (
+            <Box w="full" my={0} p={0}>
+              <Divider my={3} bg="gray.700" />
               <ChatPanel
-                onClose={() => hideViewPost(dispatch)}
+                onClose={() => {
+                  setTimeout(() => {
+                    hideViewPost(dispatch);
+                  }, 50);
+                  history.goBack();
+                }}
                 onSendMessage={(message) => {
-                  if (message.length < 3 || !post.id || !post.username) return;
+                  if (
+                    (message && message.length < 3) ||
+                    !post.id ||
+                    !post.username
+                  )
+                    return;
                   console.log(post.id, post.username, message, "sent");
                   handleMessageUser(message, false);
                 }}
               />
+              {messages && messages.length < 3 && (
+                <Text color="gray.600" pl={2} pt={2}>
+                  <i>
+                    {post.username === username
+                      ? "By replying to this message, you are allowing this person to continue on with this conversation."
+                      : "The chatbox is only available after the post owner has replied back."}
+                  </i>
+                </Text>
+              )}
             </Box>
           )}
         </Stack>
@@ -172,11 +215,13 @@ const ParticipatingPostUsers: React.FC<{
   post: any;
   messages: any[];
   myUsername: string;
+  token: string;
 }> = (props) => {
-  const { post, messages, myUsername } = props;
+  const { post, messages, myUsername, token } = props;
 
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState();
+  const [_, dispatch] = usePostsContext();
   // this function is used only when the component is mounted
   // for the case of the author of the post viewing the post
   const getDistinctUsersFromMessage = (messages: any[], myUsername: string) => {
@@ -187,7 +232,7 @@ const ParticipatingPostUsers: React.FC<{
       const exists =
         users.findIndex(({ username }: any) => username === msgOwner) !== -1;
       if (msgOwner != myUsername && !exists) {
-        users.push({ username: msgOwner, hidden: true, index });
+        users.push({ username: msgOwner, hidden: !msg.friends, index });
       }
     });
 
@@ -208,6 +253,16 @@ const ParticipatingPostUsers: React.FC<{
         selected={selectedUser}
         onSelectUser={(user) => {
           setSelectedUser(user);
+          dispatch({
+            type: POST_ACTIONS.SET_ACTIVE_MESSAGE_THREAD,
+            payload: {
+              user1: user.username,
+              user2: myUsername,
+              postId: post.id,
+              messages,
+            },
+          });
+          // fetchPostMessagesForParticipatingUser(post, user, dispatch, token);
         }}
       />
     </>
@@ -229,8 +284,13 @@ const UserList: React.FC<{
       </MenuButton>
       <MenuList>
         {props.users?.map((user: any) => (
-          <MenuItem key={user.index} onClick={() => props.onSelectUser?.(user)}>
-            {user.hidden ? `User ${user.index}` : user.username}
+          <MenuItem
+            key={user.index}
+            onClick={() => {
+              props.onSelectUser?.(user);
+            }}
+          >
+            {user.hidden ? `User ${user.index} ❗` : user.username}
           </MenuItem>
         ))}
       </MenuList>

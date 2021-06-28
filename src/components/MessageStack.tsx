@@ -2,10 +2,9 @@ import { Box, Divider } from "@chakra-ui/react";
 import React from "react";
 
 export const MessageStack: React.FC<{
-  isConnected: boolean;
   messages: any[];
   username: string;
-}> = ({ isConnected, messages, username }) => {
+}> = ({ messages, username }) => {
   return (
     <Box
       display="flex"
@@ -16,7 +15,7 @@ export const MessageStack: React.FC<{
       overflowY="scroll"
     >
       <Divider my={"4"} />
-      {messages?.map(({ owner, message, id }) => (
+      {messages?.map(({ owner, message, id, friends }) => (
         <Box
           key={id}
           w="full"
@@ -34,25 +33,21 @@ export const MessageStack: React.FC<{
             p={3}
             px={4}
           >
-            {
-              <>
-                <div
-                  style={{
-                    padding: 0,
-                    margin: 0,
-                    textAlign: username === owner ? "right" : "left",
-                  }}
-                >
-                  <b>
-                    {username === owner || isConnected
-                      ? "@" + owner.toString()
-                      : "postee"}
-                  </b>
-                  <br />
-                </div>
-                <p style={{ paddingLeft: 5 }}>{" " + message}</p>
-              </>
-            }
+            <div
+              style={{
+                padding: 0,
+                margin: 0,
+                textAlign: username === owner ? "right" : "left",
+              }}
+            >
+              <b>
+                {username === owner || friends
+                  ? "@" + owner.toString()
+                  : "Unknown"}
+              </b>
+              <br />
+            </div>
+            <p>{message}</p>
           </Box>
         </Box>
       ))}

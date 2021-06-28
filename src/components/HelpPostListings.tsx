@@ -86,7 +86,7 @@ const HelpPostListings: React.FC = (props) => {
                   description={description}
                   tags={tags}
                   datetimeISO={datetimeISO}
-                  hidden={username === authState.username ? false : !friends}
+                  hidden={username !== authState.username || !friends}
                 />
               );
             }

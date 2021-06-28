@@ -52,6 +52,7 @@ class Database {
         }
       );
       await this.addOne(
+        process.env.NODE_ENV,
         "users",
         {
           first_name,
@@ -73,12 +74,35 @@ class Database {
     }
   }
 
-  public async addOne(table: string, entry: any, config?: any): Promise<any> {
+  public async addOne(
+    schema: string,
+    table: string,
+    entry: any,
+    config?: any
+  ): Promise<any> {
     return client.post(
       "/",
       {
         operation: "insert",
-        schema: "development",
+        schema: schema,
+        table: table,
+        records: [entry],
+      },
+      config
+    );
+  }
+
+  public async updateOne(
+    schema: string,
+    table: string,
+    entry: any,
+    config?: any
+  ): Promise<any> {
+    return client.post(
+      "/",
+      {
+        operation: "update",
+        schema: schema,
         table: table,
         records: [entry],
       },

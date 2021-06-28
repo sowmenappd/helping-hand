@@ -10,7 +10,7 @@ class PostController {
     orderBy: string,
     order: string
   ) {
-    return `
+    const query = `
     SELECT 
     DISTINCT posts.id, title, description, tags, username, author, datetimeISO, 
     connections.blocked, connections.friends 
@@ -20,6 +20,8 @@ class PostController {
     WHERE posts.type = \"${type}\" AND (connections.blocked = false OR NOT connections.blocked OR posts.username=\"${myUsername}\")
     ORDER BY posts.${orderBy} ${order};
     `;
+    console.log(query);
+    return query;
   }
 
   private constructSearchPostsQueryBySearchKeywords(searchTerms: string[]) {
@@ -83,7 +85,7 @@ class PostController {
     );
     // const sqlQuery = `SELECT * FROM ${process.env.NODE_ENV}.post_messages WHERE postId=\"${post.id}\" AND owner != \"${post.username}\" ORDER BY __createdtime__ ASC`;
     const sqlQuery = `
-    SELECT 
+    SELECT DISTINCT
     post_messages.id, owner, message, replyTo, postId, connections.friends 
     FROM ${process.env.NODE_ENV}.post_messages 
     LEFT JOIN ${process.env.NODE_ENV}.connections
@@ -134,14 +136,43 @@ class PostController {
         authorization: `Bearer ${token}`,
       },
     };
-    return db.addOne("connections", { blocked, friends, user1, user2 }, config);
+    return db.addOne(
+      process.env.NODE_ENV,
+      "connections",
+      { blocked, friends, user1, user2 },
+      config
+    );
+  }
+
+  public async updateConnection(
+    friends: boolean,
+    blocked: boolean,
+    user1: string,
+    user2: string,
+    token: string
+  ) {
+    const config = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    };
+
+    const query = `
+    UPDATE ${process.env.NODE_ENV}.connections 
+    SET friends = "${friends}", blocked = "${blocked}" 
+    WHERE 
+    (user1 = "${user1}" AND user2 = "${user2}") 
+    OR 
+    (user1 = "${user2}" AND user2 = "${user1}")
+    `;
+    return db.executeSQLQuery(query, config);
   }
 
   public async addPostMessage(
     postId: string,
-    postOwner: string,
+    senderUsername: string,
+    replyToUsername: string,
     message: string,
-    messageOwner: string,
     firstTime: boolean,
     token: string
   ) {
@@ -151,11 +182,18 @@ class PostController {
       },
     };
     if (firstTime) {
-      await this.addConnection(false, false, postOwner, messageOwner, token);
+      await this.addConnection(
+        false,
+        false,
+        senderUsername,
+        replyToUsername,
+        token
+      );
     }
     return db.addOne(
+      process.env.NODE_ENV,
       "post_messages",
-      { postId, message, owner: messageOwner, replyTo: postOwner },
+      { postId, message, owner: senderUsername, replyTo: replyToUsername },
       config
     );
   }
