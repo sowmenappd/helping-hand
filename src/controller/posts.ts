@@ -94,11 +94,26 @@ class PostController {
     });
   }
 
+  public async addConnection(
+    friends: boolean,
+    blocked: boolean,
+    user1: string,
+    user2: string,
+    token: string
+  ) {
+    const config = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    };
+    return db.addOne("connections", { blocked, friends, user1, user2 }, config);
+  }
+
   public async addPostMessage(
     postId: string,
     postOwner: string,
     message: string,
-    owner: string,
+    messageOwner: string,
     firstTime: boolean,
     token: string
   ) {
@@ -108,13 +123,13 @@ class PostController {
       },
     };
     if (firstTime) {
-      await db.addOne(
-        "connections",
-        { blocked: false, friends: false, user1: postOwner, user2: owner },
-        config
-      );
+      await this.addConnection(false, false, postOwner, messageOwner, token);
     }
-    return db.addOne("post_messages", { postId, message, owner }, config);
+    return db.addOne(
+      "post_messages",
+      { postId, message, owner: messageOwner },
+      config
+    );
   }
 
   public async search(query: string, token: string) {

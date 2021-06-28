@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -9,19 +9,13 @@ import { Box, Stack, StackDivider } from "@chakra-ui/react";
 
 import Layout from "../components/Layout";
 
-import HelpPostListings from "../components/HelpPostListings";
-import SearchBar from "../components/SearchBar";
-import { useState } from "react";
-
-import HelpPostSearchResults from "../components/HelpPostSearchResults";
-import PostHelpSection from "../components/PostHelpSection";
 import { useAuthContext } from "../store/auth";
-import PostView from "./PostView";
-import { searchPosts, usePostsContext } from "../store/posts";
 import Sidebar from "../components/Sidebar";
 import SettingsPage from "./SettingsPage";
 import MessagesPage from "./MessagesPage";
 import NotificationsPage from "./NotificationsPage";
+import AllPostsPage from "./AllPostsPage";
+import PostPage from "./PostPage";
 
 export default function Main() {
   return (
@@ -56,7 +50,7 @@ const MainView = () => {
                 stats={null}
               />
             ) : (
-              <Redirect to="/" />
+              <Redirect path="/home" to="/" exact />
             )}
           </Route>
         </Switch>
@@ -67,55 +61,22 @@ const MainView = () => {
             <Route path="/home" exact>
               <AllPostsPage />
             </Route>
-            <Route path="/home/settings">
+            <Redirect path="/home/post" exact to="/home" />
+            <Route path="/home/post/:id" exact>
+              <PostPage />
+            </Route>
+            <Route path="/home/settings" exact>
               <SettingsPage />
             </Route>
-            <Route path="/home/messages">
+            <Route path="/home/messages" exact>
               <MessagesPage />
             </Route>
-            <Route path="/home/notifications">
+            <Route path="/home/notifications" exact>
               <NotificationsPage />
             </Route>
           </Switch>
         </Router>
       </Box>
     </Stack>
-  );
-};
-
-const AllPostsPage: React.FC = () => {
-  const [searchText, setSearchText] = useState("");
-
-  const [{ isViewingPost, viewPost, posts }, dispatch] = usePostsContext();
-  const [{ token }] = useAuthContext();
-
-  console.log("viewPost", viewPost);
-
-  useEffect(() => {
-    searchPosts(searchText, dispatch, token);
-  }, [searchText]);
-
-  return (
-    <>
-      <SearchBar
-        searchText={searchText}
-        onSearch={(text: string) => {
-          setSearchText(text);
-        }}
-      />
-      {searchText?.length > 3 ? (
-        <HelpPostSearchResults
-          loading={posts.loading}
-          results={posts.data}
-          searchText={searchText}
-        />
-      ) : (
-        <>
-          <PostHelpSection />
-          <HelpPostListings />
-          <PostView post={viewPost} isOpen={isViewingPost} />
-        </>
-      )}
-    </>
   );
 };

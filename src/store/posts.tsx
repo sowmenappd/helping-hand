@@ -146,6 +146,15 @@ export const addPost = async (
   }
 };
 
+export const addFriend = async (
+  user1: string,
+  user2: string,
+  dispatch: (action: Dispatch) => void,
+  token: string
+) => {
+  return PostController.addConnection(true, false, user1, user2, token);
+};
+
 export const addPostMessage = async (
   postId: string,
   postOwner: string,
@@ -169,11 +178,16 @@ export const addPostMessage = async (
     .catch((err) => console.log(err));
 };
 
-export const viewPost = (post: any, dispatch: (action: Dispatch) => void) => {
+export const viewPost = (
+  post: any,
+  dispatch: (action: Dispatch) => void,
+  token: string
+) => {
   dispatch({
     type: POST_ACTIONS.VIEW_POST,
     payload: post,
   });
+  return fetchPostMessages(post.id, dispatch, token);
 };
 
 export const hideViewPost = (dispatch: (action: Dispatch) => void) => {

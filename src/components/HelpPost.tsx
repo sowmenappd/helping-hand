@@ -16,8 +16,8 @@ import {
 import { TiArrowForward as ForwardIcon } from "react-icons/ti";
 import { MdReport as ReportIcon } from "react-icons/md";
 import { usePostsContext, viewPost } from "../store/posts";
-import { POST_ACTIONS } from "../store/types";
 import { getRelativeTimestring } from "../util/time";
+import { useHistory } from "react-router-dom";
 import { useAuthContext } from "../store/auth";
 
 interface PostTagsProps {
@@ -89,6 +89,7 @@ export interface HelpPostProps {
 }
 
 const HelpPost: React.FC<HelpPostProps> = (props) => {
+  const post = props;
   const {
     id,
     username,
@@ -98,9 +99,11 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
     description,
     datetimeISO,
     tags,
-  } = props;
+  } = post;
 
+  const [{ token }] = useAuthContext();
   const [_, dispatch] = usePostsContext();
+  const { push } = useHistory();
 
   return (
     <Container maxW={"4xl"}>
@@ -172,7 +175,10 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
                 rounded="2xl"
                 color="blue.400"
                 bgColor="transparent"
-                onClick={() => viewPost(props, dispatch)}
+                onClick={() => {
+                  viewPost(post, dispatch, token);
+                  push(`/home/post/${id}`);
+                }}
               >
                 <ForwardIcon size={28} />
               </IconButton>
