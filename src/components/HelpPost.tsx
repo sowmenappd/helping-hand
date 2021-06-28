@@ -88,8 +88,7 @@ export interface HelpPostProps {
   hidden: boolean;
 }
 
-const HelpPost: React.FC<HelpPostProps> = (props) => {
-  const post = props;
+const HelpPost: React.FC<HelpPostProps> = (post) => {
   const {
     id,
     username,
@@ -101,7 +100,7 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
     tags,
   } = post;
 
-  const [{ token }] = useAuthContext();
+  const [{ token, username: myUsername }] = useAuthContext();
   const [_, dispatch] = usePostsContext();
   const { push } = useHistory();
 
@@ -176,7 +175,12 @@ const HelpPost: React.FC<HelpPostProps> = (props) => {
                 color="blue.400"
                 bgColor="transparent"
                 onClick={() => {
-                  viewPost(post, dispatch, token);
+                  viewPost(
+                    post,
+                    post.username === myUsername ? "" : myUsername,
+                    dispatch,
+                    token
+                  );
                   push(`/home/post/${id}`);
                 }}
               >

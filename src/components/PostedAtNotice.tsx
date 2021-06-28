@@ -8,8 +8,8 @@ export const PostedAtNotice: React.FC<{
   datetimeISO: string;
   onUserPress: (username: string) => void;
 }> = (props) => (
-  <Box px={4} display="flex" justifyContent="flex-end">
-    <Text as="code">
+  <Box px={[1, 4]} display="flex" justifyContent="flex-end" w="full">
+    <Text as="code" fontSize={["sm", "initial"]}>
       {!props.hidden ? (
         <Button onClick={() => props.onUserPress?.(props.username || "")}>
           <u>{props.username}</u>
@@ -20,7 +20,7 @@ export const PostedAtNotice: React.FC<{
           label="You can only know about someone's identity if they find you helpful"
           bg="blue.400"
           zIndex="modal"
-          p={4}
+          p={[2, 4]}
           borderRadius="xl"
         >
           <Button>

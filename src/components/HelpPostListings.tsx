@@ -1,5 +1,13 @@
 import React, { useEffect } from "react";
-import { HStack, VStack, Heading, Button, Box } from "@chakra-ui/react";
+import {
+  HStack,
+  VStack,
+  Heading,
+  Button,
+  Box,
+  Image,
+  Text,
+} from "@chakra-ui/react";
 
 import HelpPost from "./HelpPost";
 import SearchSkeleton from "./SearchSkeleton";
@@ -8,6 +16,8 @@ import { POST_ACTIONS } from "../store/types";
 import NotFoundNotice from "./NotFoundNotice";
 
 import { useAuthContext } from "../store/auth";
+
+import empty from "../images/empty.svg";
 
 const HelpPostListings: React.FC = (props) => {
   const [authState] = useAuthContext();
@@ -54,8 +64,7 @@ const HelpPostListings: React.FC = (props) => {
           <SearchSkeleton loading={true} />
         ) : error ? (
           <NotFoundNotice />
-        ) : (
-          data &&
+        ) : data && data.length > 0 ? (
           data.map(
             ({
               id,
@@ -82,6 +91,22 @@ const HelpPostListings: React.FC = (props) => {
               );
             }
           )
+        ) : (
+          <Box
+            w="full"
+            display="flex"
+            flexDir="column"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Image src={empty} boxSize="250px" py={10} />
+            <Heading py={10} textAlign="center">
+              <Text fontSize="3xl">No posts available.</Text>
+              <Text fontSize="lg" fontWeight="thin" pt={3}>
+                Make your first post!
+              </Text>
+            </Heading>
+          </Box>
         )}
       </Box>
     </VStack>

@@ -17,7 +17,7 @@ export const FirstTimeNotice: React.FC<{ onMessageUser: () => void }> = (
     <Image src={svg1} boxSize={["130px", "220px", "250px"]} />
     <Heading textAlign="center" px={4} maxW={["sm", "lg", "xl"]}>
       <Text fontSize="3xl">Think you can help?</Text>
-      <Text fontSize="xl" fontWeight="normal">
+      <Text fontSize="xl" py={3} fontWeight="normal">
         This person reserves her person right to deny any co-operations you may
         facilitate.
       </Text>

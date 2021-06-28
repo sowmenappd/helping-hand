@@ -16,9 +16,9 @@ export const MessageStack: React.FC<{
       overflowY="scroll"
     >
       <Divider my={"4"} />
-      {messages?.map(({ owner, message }) => (
+      {messages?.map(({ owner, message, id }) => (
         <Box
-          key={message.id}
+          key={id}
           w="full"
           display="flex"
           h="fit-content"

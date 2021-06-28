@@ -3,7 +3,7 @@ import db from "./db";
 class PostController {
   constructor() {}
 
-  private constructQueryByPostType(
+  private constructFetchPostsQueryByType(
     schema: string,
     myUsername: string,
     type: "help" | "social",
@@ -22,7 +22,7 @@ class PostController {
     `;
   }
 
-  private constructQueryForSearchKeywords(searchTerms: string[]) {
+  private constructSearchPostsQueryBySearchKeywords(searchTerms: string[]) {
     const repeatFor = (attr: string, terms: string[]): string => {
       let sql = "";
 
@@ -52,7 +52,7 @@ class PostController {
     orderBy: string = "__createdtime__",
     order: string = "DESC"
   ) {
-    const query = this.constructQueryByPostType(
+    const query = this.constructFetchPostsQueryByType(
       process.env.NODE_ENV,
       ownUsername,
       type,
@@ -74,14 +74,42 @@ class PostController {
     });
   }
 
-  public async fetchPostMessages(post_id: string, token: string) {
-    const sqlQuery = `SELECT * from ${process.env.NODE_ENV}.post_messages WHERE postId = \"${post_id}\" ORDER BY __createdtime__ ASC`;
-
+  public async fetchPostMessages(post: any, token: string) {
+    console.log(
+      "Fetching all message for post",
+      post.id,
+      "owner",
+      post.username
+    );
+    // const sqlQuery = `SELECT * FROM ${process.env.NODE_ENV}.post_messages WHERE postId=\"${post.id}\" AND owner != \"${post.username}\" ORDER BY __createdtime__ ASC`;
+    const sqlQuery = `
+    SELECT 
+    post_messages.id, owner, message, replyTo, postId, connections.friends 
+    FROM ${process.env.NODE_ENV}.post_messages 
+    LEFT JOIN ${process.env.NODE_ENV}.connections
+    ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
+    WHERE postId="${post.id}" ORDER BY post_messages.__createdtime__ ASC
+    `;
     const config = {
       headers: {
         authorization: `Bearer ${token}`,
       },
     };
+    return db.executeSQLQuery(sqlQuery, config);
+  }
+
+  public async fetchPostMessagesForParticipatingUser(
+    post: any,
+    otherUser: string,
+    token: string
+  ) {
+    const config = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    };
+    const sqlQuery = `SELECT * FROM ${process.env.NODE_ENV}.post_messages WHERE postId=\"${post.id}\" AND (owner = \"${post.username}\" OR owner = \"${otherUser}\") ORDER BY __createdtime__ ASC`;
+
     return db.executeSQLQuery(sqlQuery, config);
   }
 
@@ -127,13 +155,13 @@ class PostController {
     }
     return db.addOne(
       "post_messages",
-      { postId, message, owner: messageOwner },
+      { postId, message, owner: messageOwner, replyTo: postOwner },
       config
     );
   }
 
   public async search(query: string, token: string) {
-    const constructedSQL = this.constructQueryForSearchKeywords(
+    const constructedSQL = this.constructSearchPostsQueryBySearchKeywords(
       query.split(" ").filter((t) => t !== "")
     );
     const config = {

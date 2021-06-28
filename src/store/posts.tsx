@@ -156,30 +156,31 @@ export const addFriend = async (
 };
 
 export const addPostMessage = async (
-  postId: string,
-  postOwner: string,
-  username: string,
+  post: any,
+  _username: string,
   message: string,
   firstTime: boolean,
   dispatch: (obj: Dispatch) => void,
   token: string
 ) => {
+  const { id, username } = post;
   return PostController.addPostMessage(
-    postId,
-    postOwner,
-    message,
+    id,
     username,
+    message,
+    _username,
     firstTime,
     token
   )
     .then(() => {
-      return fetchPostMessages(postId, dispatch, token);
+      return fetchPostMessages(post, dispatch, token);
     })
     .catch((err) => console.log(err));
 };
 
 export const viewPost = (
   post: any,
+  otherUser: string,
   dispatch: (action: Dispatch) => void,
   token: string
 ) => {
@@ -187,7 +188,14 @@ export const viewPost = (
     type: POST_ACTIONS.VIEW_POST,
     payload: post,
   });
-  return fetchPostMessages(post.id, dispatch, token);
+  if (!otherUser) return fetchPostMessages(post, dispatch, token);
+  console.log("Fetching conversation between", post.username, otherUser);
+  return fetchPostMessagesForParticipatingUser(
+    post,
+    otherUser,
+    dispatch,
+    token
+  );
 };
 
 export const hideViewPost = (dispatch: (action: Dispatch) => void) => {
@@ -220,12 +228,38 @@ export const fetchPosts = async (
 };
 
 export const fetchPostMessages = async (
-  postId: string,
-  dispatch: (dispatchObj: Dispatch) => void,
+  post: any,
+  dispatch: (action: Dispatch) => void,
 
   token: string
 ) => {
-  return PostController.fetchPostMessages(postId, token)
+  return PostController.fetchPostMessages(post, token)
+    .then(({ data }) => {
+      dispatch({
+        type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
+        payload: data,
+      });
+      console.log(data);
+    })
+    .catch((err) => {
+      console.log(err);
+      dispatch({
+        type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_ERROR,
+      });
+    });
+};
+
+export const fetchPostMessagesForParticipatingUser = async (
+  post: any,
+  otherUser: string,
+  dispatch: (action: Dispatch) => void,
+  token: string
+) => {
+  return PostController.fetchPostMessagesForParticipatingUser(
+    post,
+    otherUser,
+    token
+  )
     .then(({ data }) => {
       dispatch({
         type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
