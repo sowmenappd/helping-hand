@@ -3,37 +3,6 @@ import db from "./db";
 class PostController {
   constructor() {}
 
-  private constructFetchPostsQueryByType(
-    schema: string,
-    myUsername: string,
-    type: "help" | "social",
-    orderBy: string,
-    order: string
-  ) {
-    const query = `
-    SELECT 
-    DISTINCT posts.id, title, description, tags, username, author, datetimeISO, 
-    connections.blocked, connections.friends 
-    FROM ${schema}.posts 
-    FULL OUTER JOIN ${schema}.connections 
-    ON (posts.username = connections.user1 OR posts.username = connections.user2) 
-    WHERE 
-    posts.type = \"${type}\" 
-    AND 
-    ((
-      (connections.user1=\"${myUsername}\" OR connections.user2=\"${myUsername}\") 
-      AND 
-      connections.blocked = false
-    ) 
-    OR NOT connections.blocked OR posts.username=\"${myUsername}\")
-    GROUP BY posts.id, title, description, tags, username, author, datetimeISO, 
-    connections.blocked, connections.friends
-    ORDER BY posts.${orderBy} ${order};
-    `;
-    console.log("fetchPosts query", query);
-    return query;
-  }
-
   private constructSearchPostsQueryBySearchKeywords(searchTerms: string[]) {
     const repeatFor = (attr: string, terms: string[]): string => {
       let sql = "";
@@ -61,16 +30,9 @@ class PostController {
     type: "help" | "social",
     ownUsername: string,
     token: string,
-    orderBy: string = "__createdtime__",
+    orderBy: string = "posts.__createdtime__",
     order: string = "DESC"
   ) {
-    const query = this.constructFetchPostsQueryByType(
-      process.env.NODE_ENV,
-      ownUsername,
-      type,
-      orderBy,
-      order
-    );
     const config = {
       headers: {
         authorization: `Bearer ${token}`,
@@ -100,6 +62,7 @@ class PostController {
       LEFT JOIN ${process.env.NODE_ENV}.connections
       ON (connections.user1 = posts.username OR connections.user2 = posts.username) 
       WHERE username IN (${allIdsString}) AND (connections.user1 = \"${ownUsername}\" OR connections.user2 = \"${ownUsername}\")
+      ORDER BY ${orderBy} ${order}
       ;
       `;
 
@@ -122,7 +85,6 @@ class PostController {
       "owner",
       post.username
     );
-    // const sqlQuery = `SELECT * FROM ${process.env.NODE_ENV}.post_messages WHERE postId=\"${post.id}\" AND owner != \"${post.username}\" ORDER BY __createdtime__ ASC`;
     const sqlQuery = `
     SELECT DISTINCT
     post_messages.id, owner, message, replyTo, postId, connections.friends 
