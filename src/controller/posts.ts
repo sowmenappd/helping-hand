@@ -110,7 +110,16 @@ class PostController {
         authorization: `Bearer ${token}`,
       },
     };
-    const sqlQuery = `SELECT * FROM ${process.env.NODE_ENV}.post_messages WHERE postId=\"${post.id}\" AND (owner = \"${post.username}\" OR owner = \"${otherUser}\") ORDER BY __createdtime__ ASC`;
+    const sqlQuery = `
+    SELECT DISTINCT
+    post_messages.id, owner, message, replyTo, postId, connections.friends
+    FROM ${process.env.NODE_ENV}.post_messages 
+    LEFT JOIN ${process.env.NODE_ENV}.connections
+    ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
+    WHERE postId=\"${post.id}\" 
+    AND 
+    (owner = \"${post.username}\" OR owner = \"${otherUser}\") 
+    ORDER BY post_messages.__createdtime__ ASC`;
 
     return db.executeSQLQuery(sqlQuery, config);
   }

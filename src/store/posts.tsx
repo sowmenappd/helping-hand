@@ -96,6 +96,7 @@ const postsReducer = (state: any, action: Dispatch) => {
       state.messages.data = action.payload;
       state.messages.loading = false;
       break;
+
     case POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_ERROR:
       state.messages.error = true;
       state.messages.loading = false;
@@ -110,6 +111,12 @@ const postsReducer = (state: any, action: Dispatch) => {
         );
       });
       state.activeMessageThread = { messages, user1, user2, postId };
+      break;
+    case POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_SUCCESS:
+      state.activeMessageThread = { ...action.payload };
+      break;
+    case POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_ERROR:
+      state.activeMessageThread = {};
       break;
   }
   console.log(action);
@@ -186,7 +193,12 @@ export const addPostMessage = async (
     token
   )
     .then(() => {
-      return fetchPostMessages(post, dispatch, token);
+      return fetchPostMessagesForParticipatingUser(
+        post,
+        post.username === senderUsername ? replyToUsername : senderUsername,
+        dispatch,
+        token
+      );
     })
     .catch((err) => console.log(err));
 };
@@ -275,8 +287,13 @@ export const fetchPostMessagesForParticipatingUser = async (
   )
     .then(({ data }) => {
       dispatch({
-        type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
-        payload: data,
+        type: POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_SUCCESS,
+        payload: {
+          messages: data,
+          user1: post.username,
+          user2: otherUser,
+          postId: post.id,
+        },
       });
       dispatch({
         type: POST_ACTIONS.SET_ACTIVE_MESSAGE_THREAD,
@@ -287,7 +304,8 @@ export const fetchPostMessagesForParticipatingUser = async (
           postId: post.id,
         },
       });
-      console.log(data);
+      console.log("participating user messages", data);
+      return data;
     })
     .catch((err) => {
       console.log(err);
