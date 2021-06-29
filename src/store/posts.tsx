@@ -271,11 +271,19 @@ export const fetchPostMessages = async (
 ) => {
   return PostController.fetchPostMessages(post, token)
     .then(({ data }) => {
-      dispatch({
-        type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
-        payload: data,
-      });
-      console.log(data);
+      if (data && data.length > 0 && data[0].owner) {
+        dispatch({
+          type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
+          payload: data,
+        });
+        console.log(data);
+      } else {
+        dispatch({
+          type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_SUCCESS,
+          payload: [],
+        });
+        console.log("post has no messages");
+      }
     })
     .catch((err) => {
       console.log(err);

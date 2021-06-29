@@ -12,6 +12,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  Image,
 } from "@chakra-ui/react";
 import { IoMdClose as CloseIcon } from "react-icons/io";
 import { BsChevronDown as DownArrow } from "react-icons/bs";
@@ -22,15 +23,18 @@ import ChatPanel from "../components/ChatPanel";
 import MakeFriendsNotice from "../components/MakFriendsNotice";
 import FirstTimeNotice from "../components/FirstTimeNotice";
 
-import { useAuthContext } from "../store/auth";
 import {
   addFriend,
   addPostMessage,
-  fetchPostMessagesForParticipatingUser,
   hideViewPost,
   usePostsContext,
 } from "../store/posts";
+
+import { useAuthContext } from "../store/auth";
 import { POST_ACTIONS } from "../store/types";
+
+import noMessagesSvg from "../images/no_messages.svg";
+import GraphicNotice from "../components/GraphicNotice";
 
 const isMine = (post: any, username: string): boolean => {
   return post.username === username;
@@ -38,6 +42,10 @@ const isMine = (post: any, username: string): boolean => {
 
 const isMyFriendsPost = (post: any): boolean => {
   return post.friends;
+};
+
+const hasMessages = (post: any): boolean => {
+  return post.messages && post.messages.length > 0;
 };
 
 const PostPage: React.FC = () => {
@@ -65,10 +73,10 @@ const PostPage: React.FC = () => {
   };
 
   return (
-    <VStack spacing={4} alignItems="flex-start">
+    <VStack spacing={4} alignItems="flex-start" w="full">
       <Box
-        w={["100%", "100%", "100%", "100%", "4xl"]}
-        maxW={["xl", "xl", "xl", "2xl", "4xl"]}
+        w={["full", "full", "full", "2xl", "4xl"]}
+        maxW={["full", "full", "full", "2xl", "4xl"]}
       >
         <Box
           w="full"
@@ -100,16 +108,18 @@ const PostPage: React.FC = () => {
           flexDirection="column"
           justifyContent="space-between"
           h="full"
+          w="full"
         >
           <Box>
             <Box pt={2} pl={5} pr={1}>
               <Heading fontSize="2xl">{post.description}</Heading>
             </Box>
-            <Divider pt={2} orientation="horizontal" />
+            <Divider pt={2} orientation="horizontal" w="full" />
             <Stack
               direction={["column", "row"]}
               display="flex"
               w="full"
+              maxW="full"
               justifyContent={
                 isMine(post, username) || isMyFriendsPost(post)
                   ? ["", "space-between"]
@@ -124,12 +134,14 @@ const PostPage: React.FC = () => {
                   align={["flex-start", "center"]}
                   spacing={2}
                 >
-                  <ParticipatingPostUsers
-                    post={post}
-                    messages={allMessages.data}
-                    myUsername={username}
-                    token={token}
-                  />
+                  {hasMessages(post) && (
+                    <ParticipatingPostUsers
+                      post={post}
+                      messages={allMessages.data}
+                      myUsername={username}
+                      token={token}
+                    />
+                  )}
                   {messages && !messages[0].friends && (
                     <MakeFriendsNotice
                       // TODO: right now all messages from people to a certain person will appear at once for the post owner, need to group them and use a select dropdown to show a specific person's reply
@@ -158,7 +170,8 @@ const PostPage: React.FC = () => {
                 onUserPress={() => null}
               />
             </Stack>
-            {messages &&
+            {hasMessages(post) &&
+              messages &&
               (messages.length == 0 ? (
                 <FirstTimeNotice
                   onMessageUser={() =>
@@ -173,37 +186,57 @@ const PostPage: React.FC = () => {
               ))}
           </Box>
 
-          {(isMine(post, username) || (messages && messages.length > 1)) && (
-            <Box w="full" my={0} p={0}>
-              <Divider my={3} bg="gray.700" />
-              <ChatPanel
-                onClose={() => {
-                  setTimeout(() => {
-                    hideViewPost(dispatch);
-                  }, 50);
-                  history.goBack();
-                }}
-                onSendMessage={(message) => {
-                  if (
-                    (message && message.length < 3) ||
-                    !post.id ||
-                    !post.username
-                  )
-                    return;
-                  console.log(post.id, post.username, message, "sent");
-                  handleMessageUser(message, false);
-                }}
-              />
-              {messages && messages.length < 3 && (
-                <Text color="gray.600" pl={2} pt={2}>
-                  <i>
-                    {post.username === username
-                      ? "By replying to this message, you are allowing this person to continue on with this conversation."
-                      : "The chatbox is only available after the post owner has replied back."}
-                  </i>
-                </Text>
-              )}
-            </Box>
+          {hasMessages(post) &&
+            (isMine(post, username) || (messages && messages.length > 1)) && (
+              <Box w="full" my={0} p={0}>
+                <Divider my={3} bg="gray.700" />
+                <ChatPanel
+                  onClose={() => {
+                    setTimeout(() => {
+                      hideViewPost(dispatch);
+                    }, 50);
+                    history.goBack();
+                  }}
+                  onSendMessage={(message) => {
+                    if (
+                      (message && message.length < 3) ||
+                      !post.id ||
+                      !post.username
+                    )
+                      return;
+                    console.log(post.id, post.username, message, "sent");
+                    handleMessageUser(message, false);
+                  }}
+                />
+                {messages && messages.length < 3 && (
+                  <Text color="gray.600" pl={2} pt={2}>
+                    <i>
+                      {post.username === username
+                        ? "By replying to this message, you are allowing this person to continue on with this conversation."
+                        : "The chatbox is only available after the post owner has replied back."}
+                    </i>
+                  </Text>
+                )}
+              </Box>
+            )}
+          {!hasMessages(post) && (
+            <GraphicNotice
+              img={noMessagesSvg}
+              title="We can't seem to find any messages yet."
+              subtitle=""
+            />
+            // <Box
+            //   w="full"
+            //   h="400px"
+            //   display="flex"
+            //   justifyContent="center"
+            //   alignItems="center"
+            // >
+            //   <Image src={noMessagesSvg} w={["180px", "220px", "300px"]} />
+            //   <Heading>
+
+            //   </Heading>
+            // </Box>
           )}
         </Stack>
       </Box>
