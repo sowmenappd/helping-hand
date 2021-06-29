@@ -110,13 +110,14 @@ const postsReducer = (state: any, action: Dispatch) => {
             (msg.owner === user2 && msg.replyTo == user1))
         );
       });
+      console.log("dup msgs", messages);
       state.activeMessageThread = { messages, user1, user2, postId };
       break;
     case POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_SUCCESS:
       state.activeMessageThread = { ...action.payload };
       break;
     case POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_ERROR:
-      state.activeMessageThread = {};
+      // state.activeMessageThread = {};
       break;
   }
   console.log(action);
@@ -169,10 +170,20 @@ export const addPost = async (
 export const addFriend = async (
   user1: string,
   user2: string,
+  post: any,
   dispatch: (action: Dispatch) => void,
   token: string
 ) => {
-  return PostController.updateConnection(true, false, user1, user2, token);
+  return PostController.updateConnection(true, false, user1, user2, token).then(
+    () => {
+      return fetchPostMessagesForParticipatingUser(
+        post,
+        user2,
+        dispatch,
+        token
+      );
+    }
+  );
 };
 
 export const addPostMessage = async (
@@ -310,7 +321,7 @@ export const fetchPostMessagesForParticipatingUser = async (
     .catch((err) => {
       console.log(err);
       dispatch({
-        type: POST_ACTIONS.FETCH_VIEW_POST_MESSAGES_ERROR,
+        type: POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_ERROR,
       });
     });
 };

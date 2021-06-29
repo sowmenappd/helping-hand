@@ -17,10 +17,20 @@ class PostController {
     FROM ${schema}.posts 
     FULL OUTER JOIN ${schema}.connections 
     ON (posts.username = connections.user1 OR posts.username = connections.user2) 
-    WHERE posts.type = \"${type}\" AND (connections.blocked = false OR NOT connections.blocked OR posts.username=\"${myUsername}\")
+    WHERE 
+    posts.type = \"${type}\" 
+    AND 
+    ((
+      (connections.user1=\"${myUsername}\" OR connections.user2=\"${myUsername}\") 
+      AND 
+      connections.blocked = false
+    ) 
+    OR NOT connections.blocked OR posts.username=\"${myUsername}\")
+    GROUP BY posts.id, title, description, tags, username, author, datetimeISO, 
+    connections.blocked, connections.friends
     ORDER BY posts.${orderBy} ${order};
     `;
-    console.log(query);
+    console.log("fetchPosts query", query);
     return query;
   }
 
@@ -67,13 +77,42 @@ class PostController {
       },
     };
 
-    return db.executeSQLQuery(query, config).then(({ data: posts }) => {
-      let uniquePosts = posts.filter(
-        (post: any, idx: Number, self: any) =>
-          idx === self.findIndex((p: any) => p.id === post.id)
-      );
-      return uniquePosts;
-    });
+    const queryFetchAllowedFriendIds1 = `SELECT user1 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user2=\"${ownUsername}\" AND NOT blocked`;
+    const queryFetchAllowedFriendIds2 = `SELECT user2 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user1=\"${ownUsername}\" AND NOT blocked`;
+
+    return Promise.all([
+      db.executeSQLQuery(queryFetchAllowedFriendIds1, config),
+      db.executeSQLQuery(queryFetchAllowedFriendIds2, config),
+    ])
+      .then((values: any) => {
+        const array1 = values[0].data;
+        const array2 = values[1].data;
+        const combined = [...array1, ...array2, { username: ownUsername }].map(
+          (x) => `"${x.username}"`
+        );
+
+        const allIdsString = combined.toString();
+
+        const queryFetchAllowedPosts = `
+      SELECT DISTINCT
+      posts.id, title, description, tags, username, author, datetimeISO, connections.friends, connections.blocked 
+      FROM ${process.env.NODE_ENV}.posts
+      LEFT JOIN ${process.env.NODE_ENV}.connections
+      ON (connections.user1 = posts.username OR connections.user2 = posts.username) 
+      WHERE username IN (${allIdsString}) AND (connections.user1 = \"${ownUsername}\" OR connections.user2 = \"${ownUsername}\")
+      ;
+      `;
+
+        return db
+          .executeSQLQuery(queryFetchAllowedPosts, config)
+          .then(({ data }: any) => {
+            console.log("received", data);
+            return data;
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   public async fetchPostMessages(post: any, token: string) {
@@ -88,15 +127,18 @@ class PostController {
     SELECT DISTINCT
     post_messages.id, owner, message, replyTo, postId, connections.friends 
     FROM ${process.env.NODE_ENV}.post_messages 
-    LEFT JOIN ${process.env.NODE_ENV}.connections
+    OUTER JOIN ${process.env.NODE_ENV}.connections
     ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
-    WHERE postId="${post.id}" ORDER BY post_messages.__createdtime__ ASC
+    WHERE postId=\"${post.id}\" 
+    GROUP BY post_messages.id, owner, message, replyTo, postId, connections.friends 
+    ORDER BY post_messages.__createdtime__ ASC
     `;
     const config = {
       headers: {
         authorization: `Bearer ${token}`,
       },
     };
+    console.log(sqlQuery);
     return db.executeSQLQuery(sqlQuery, config);
   }
 
@@ -114,13 +156,16 @@ class PostController {
     SELECT DISTINCT
     post_messages.id, owner, message, replyTo, postId, connections.friends
     FROM ${process.env.NODE_ENV}.post_messages 
-    LEFT JOIN ${process.env.NODE_ENV}.connections
+    FULL OUTER JOIN ${process.env.NODE_ENV}.connections
     ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
-    WHERE postId=\"${post.id}\" 
+    WHERE postId="${post.id}" 
     AND 
-    (owner = \"${post.username}\" OR owner = \"${otherUser}\") 
+    ((owner=\"${post.username}\" AND replyTo=\"${otherUser}\") 
+    OR (owner=\"${otherUser}\" AND replyTo=\"${post.username}\")) 
+    GROUP BY post_messages.id, owner, message, replyTo, postId, connections.friends
     ORDER BY post_messages.__createdtime__ ASC`;
 
+    console.log(sqlQuery);
     return db.executeSQLQuery(sqlQuery, config);
   }
 

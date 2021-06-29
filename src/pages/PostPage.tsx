@@ -138,7 +138,7 @@ const PostPage: React.FC = () => {
                         console.log(_u);
                         if (!_u) return;
                         // TODO: add function that adds an entry to connections table with the users
-                        addFriend(post.username, _u, dispatch, token);
+                        addFriend(post.username, _u, post, dispatch, token);
                         // TODO: add a notifications table entry
                       }}
                     />
