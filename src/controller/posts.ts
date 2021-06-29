@@ -49,11 +49,11 @@ class PostController {
       .then((values: any) => {
         const array1 = values[0].data;
         const array2 = values[1].data;
-        const combined = [...array1, ...array2, { username: ownUsername }].map(
+        const allIdsStringArray = [...array1, ...array2].map(
           (x) => `"${x.username}"`
         );
 
-        const allIdsString = combined.toString();
+        const allIdsString = allIdsStringArray.toString();
 
         const queryFetchAllowedPosts = `
       SELECT DISTINCT
@@ -61,16 +61,26 @@ class PostController {
       FROM ${process.env.NODE_ENV}.posts
       LEFT JOIN ${process.env.NODE_ENV}.connections
       ON (connections.user1 = posts.username OR connections.user2 = posts.username) 
-      WHERE username IN (${allIdsString}) AND (connections.user1 = \"${ownUsername}\" OR connections.user2 = \"${ownUsername}\")
+      WHERE (username IN (${allIdsString}) AND (connections.user1 = \"${ownUsername}\" OR connections.user2 = \"${ownUsername}\"))
       ORDER BY ${orderBy} ${order}
       ;
       `;
 
         return db
           .executeSQLQuery(queryFetchAllowedPosts, config)
-          .then(({ data }: any) => {
-            console.log("received", data);
-            return data;
+          .then(async ({ data: otherPosts }: any) => {
+            console.log("received", otherPosts);
+
+            const queryMyPosts = `
+            SELECT id, title, description, tags, username, author, datetimeISO
+            FROM ${process.env.NODE_ENV}.posts WHERE username = \"${ownUsername}\" 
+            `;
+
+            const { data: myPosts } = await db.executeSQLQuery(
+              queryMyPosts,
+              config
+            );
+            return [...otherPosts, ...myPosts];
           });
       })
       .catch((err) => {
@@ -133,7 +143,7 @@ class PostController {
 
   public async addPost(post: any, token: string) {
     console.log(post);
-    return db.addOne("posts", post, {
+    return db.addOne(process.env.NODE_ENV, "posts", post, {
       headers: {
         authorization: `Bearer ${token}`,
       },
