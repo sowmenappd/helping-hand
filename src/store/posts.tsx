@@ -175,7 +175,8 @@ export const addFriend = async (
   token: string
 ) => {
   return PostController.updateConnection(true, false, user1, user2, token).then(
-    () => {
+    async () => {
+      await fetchPostMessages(post, dispatch, token);
       return fetchPostMessagesForParticipatingUser(
         post,
         user2,
@@ -253,13 +254,13 @@ export const fetchPosts = async (
 
   try {
     const posts = await PostController.fetchPosts(type, ownUsername, token);
-    console.log(posts);
+    // console.log(posts);
     dispatch({
       type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
       payload: posts,
     });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
   }
 };
 

@@ -13,6 +13,7 @@ import { IoMdSend as SendIcon } from "react-icons/io";
 export const ChatPanel: React.FC<{
   onSendMessage: (msg: string) => void;
   onClose: () => void;
+  disabled: boolean;
 }> = (props) => {
   const [msg, setMessage] = useState("");
 
@@ -25,6 +26,7 @@ export const ChatPanel: React.FC<{
             onChange={({ currentTarget: { value } }) => setMessage(value)}
             variant="filled"
             placeholder="Send a message..."
+            isDisabled={props.disabled}
           />
           <InputRightElement
             children={<SendIcon color="blue.500" />}

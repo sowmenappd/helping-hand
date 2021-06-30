@@ -177,7 +177,7 @@ const HelpPost: React.FC<HelpPostProps> = (post) => {
                 onClick={() => {
                   viewPost(
                     post,
-                    post.username === myUsername ? "" : myUsername,
+                    post.username === myUsername ? null : myUsername,
                     dispatch,
                     token
                   );

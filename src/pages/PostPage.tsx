@@ -12,7 +12,6 @@ import {
   MenuItem,
   MenuList,
   Text,
-  Image,
 } from "@chakra-ui/react";
 import { IoMdClose as CloseIcon } from "react-icons/io";
 import { BsChevronDown as DownArrow } from "react-icons/bs";
@@ -44,8 +43,13 @@ const isMyFriendsPost = (post: any): boolean => {
   return post.friends;
 };
 
-const hasMessages = (post: any): boolean => {
-  return post.messages && post.messages.length > 0;
+const hasMessages = (threadOrAllPostsMessage: any): boolean => {
+  console.log("hasMessages", threadOrAllPostsMessage);
+  if (threadOrAllPostsMessage.data)
+    return threadOrAllPostsMessage.data?.length > 0;
+  return threadOrAllPostsMessage.messages?.length > 0;
+  // &&
+  // threadOrAllPostsMessage.messages.length > 0
 };
 
 const PostPage: React.FC = () => {
@@ -56,6 +60,7 @@ const PostPage: React.FC = () => {
     dispatch,
   ] = usePostsContext();
 
+  console.log("activeMessageThread", activeMessageThread);
   const { messages, user1, user2 } = activeMessageThread;
 
   const handleMessageUser = (msg: string, firsTime: boolean) => {
@@ -134,7 +139,7 @@ const PostPage: React.FC = () => {
                   align={["flex-start", "center"]}
                   spacing={2}
                 >
-                  {hasMessages(post) && (
+                  {hasMessages(allMessages) && (
                     <ParticipatingPostUsers
                       post={post}
                       messages={allMessages.data}
@@ -159,38 +164,36 @@ const PostPage: React.FC = () => {
               )}
               <PostedAtNotice
                 datetimeISO={post.datetimeISO}
-                hidden={isMine(post, username) ? false : !post.friends}
-                username={
-                  isMine(post, username)
-                    ? "You"
-                    : post.friends
-                    ? post.username
-                    : "Someone"
-                }
+                hidden={post.hidden}
+                username={post.username}
                 onUserPress={() => null}
               />
             </Stack>
-            {hasMessages(post) &&
-              messages &&
-              (messages.length == 0 ? (
-                <FirstTimeNotice
-                  onMessageUser={() =>
-                    handleMessageUser(
-                      "Hello there, I think I might be able to help you!",
-                      true
-                    )
-                  }
-                />
-              ) : (
-                <MessageStack username={username} messages={messages} />
-              ))}
+            {!isMine(post, username) && !hasMessages(activeMessageThread) && (
+              <FirstTimeNotice
+                onMessageUser={() =>
+                  handleMessageUser(
+                    "Hello there, I think I might be able to help you!",
+                    true
+                  )
+                }
+              />
+            )}
+            {hasMessages(activeMessageThread) && (
+              <MessageStack username={username} messages={messages} />
+            )}
           </Box>
 
-          {hasMessages(post) &&
-            (isMine(post, username) || (messages && messages.length > 1)) && (
-              <Box w="full" my={0} p={0}>
-                <Divider my={3} bg="gray.700" />
+          {(isMine(post, username) || hasMessages(activeMessageThread)) && (
+            <Box w="full" my={0} p={0}>
+              <Divider my={3} bg="gray.700" />
+              {hasMessages(activeMessageThread) && (
                 <ChatPanel
+                  disabled={
+                    isMine(post, username)
+                      ? false
+                      : messages && messages.length < 2
+                  }
                   onClose={() => {
                     setTimeout(() => {
                       hideViewPost(dispatch);
@@ -208,35 +211,24 @@ const PostPage: React.FC = () => {
                     handleMessageUser(message, false);
                   }}
                 />
-                {messages && messages.length < 3 && (
-                  <Text color="gray.600" pl={2} pt={2}>
-                    <i>
-                      {post.username === username
-                        ? "By replying to this message, you are allowing this person to continue on with this conversation."
-                        : "The chatbox is only available after the post owner has replied back."}
-                    </i>
-                  </Text>
-                )}
-              </Box>
-            )}
-          {!hasMessages(post) && (
+              )}
+              {messages && messages.length < 3 && (
+                <Text color="gray.600" pl={2} pt={2}>
+                  <i>
+                    {post.username === username
+                      ? "By replying to this message, you are allowing this person to continue on with this conversation."
+                      : "The chatbox is only available after the post owner has replied back."}
+                  </i>
+                </Text>
+              )}
+            </Box>
+          )}
+          {isMine(post, username) && !hasMessages(allMessages) && (
             <GraphicNotice
               img={noMessagesSvg}
               title="We can't seem to find any messages yet."
-              subtitle=""
+              subtitle="Somebody will swing by surely!"
             />
-            // <Box
-            //   w="full"
-            //   h="400px"
-            //   display="flex"
-            //   justifyContent="center"
-            //   alignItems="center"
-            // >
-            //   <Image src={noMessagesSvg} w={["180px", "220px", "300px"]} />
-            //   <Heading>
-
-            //   </Heading>
-            // </Box>
           )}
         </Stack>
       </Box>

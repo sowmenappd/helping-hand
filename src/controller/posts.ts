@@ -69,7 +69,7 @@ class PostController {
         return db
           .executeSQLQuery(queryFetchAllowedPosts, config)
           .then(async ({ data: otherPosts }: any) => {
-            console.log("received", otherPosts);
+            // console.log("received", otherPosts);
 
             const queryMyPosts = `
             SELECT id, title, description, tags, username, author, datetimeISO
@@ -104,11 +104,10 @@ class PostController {
     SELECT DISTINCT
     post_messages.id, owner, message, replyTo, postId, connections.friends 
     FROM ${process.env.NODE_ENV}.post_messages 
-    INNER JOIN ${process.env.NODE_ENV}.connections
+    FULL OUTER JOIN ${process.env.NODE_ENV}.connections
     ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
     WHERE postId=\"${post.id}\"
     AND ((connections.user1 = post_messages.owner AND connections.user2 = post_messages.replyTo) OR (connections.user2 = post_messages.owner AND connections.user1 = post_messages.replyTo))
-    GROUP BY post_messages.id, owner, message, replyTo, postId, connections.friends 
     ORDER BY post_messages.__createdtime__ ASC
     `;
 
@@ -136,15 +135,14 @@ class PostController {
     post_messages.id, owner, message, replyTo, postId, connections.friends
     FROM ${process.env.NODE_ENV}.post_messages 
     FULL OUTER JOIN ${process.env.NODE_ENV}.connections
-    ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
-    WHERE postId="${post.id}" 
+    ON ((connections.user1 = post_messages.owner AND connections.user2 = post_messages.replyTo) OR (connections.user2 = post_messages.owner AND connections.user1 = post_messages.replyTo))
+    WHERE postId=\"${post.id}\" 
     AND 
     ((owner=\"${post.username}\" AND replyTo=\"${otherUser}\") 
     OR (owner=\"${otherUser}\" AND replyTo=\"${post.username}\")) 
-    GROUP BY post_messages.id, owner, message, replyTo, postId, connections.friends
     ORDER BY post_messages.__createdtime__ ASC`;
 
-    console.log(sqlQuery);
+    console.log("fetchPostMessagesForParticipatingUserQuery", sqlQuery);
     return db.executeSQLQuery(sqlQuery, config);
   }
 
