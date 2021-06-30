@@ -55,9 +55,9 @@ class PostController {
     const blockedIdsString = blockedIds.map((id) => `"${id}"`).toString();
     console.log("blockedIdsString", blockedIdsString);
 
-    let fetchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}"))`;
+    let fetchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}")) WHERE posts.type = "${type}"`;
     if (blockedIds.length > 0) {
-      fetchPostsQuery += ` WHERE posts.username NOT IN (${blockedIdsString})`;
+      fetchPostsQuery += ` AND posts.username NOT IN (${blockedIdsString})`;
     }
 
     console.log(fetchPostsQuery);
@@ -141,7 +141,7 @@ class PostController {
     // first search if connection exists
     const connectionExistsQuery = `SELECT id 
     FROM ${process.env.NODE_ENV}.connections
-    WHERE (user1 = ${user1} AND user2 = ${user2}) OR (user2 = ${user1} AND user1 = ${user2})
+    WHERE (user1 = "${user1}" AND user2 = "${user2}") OR (user2 = "${user1}" AND user1 = "${user2}")
     `;
     const { data } = await db.executeSQLQuery(connectionExistsQuery, config);
 

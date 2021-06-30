@@ -61,7 +61,7 @@ const authReducer = (state: any, action: Dispatch) => {
       break;
     case AUTH_ACTIONS.LOGIN_FAILED:
       state.error = {
-        [action.payload.field]: true,
+        // [action.payload.field]: true,
         message: action.payload.message,
       };
       state.loading = false;
@@ -133,7 +133,7 @@ export const login = async (
     console.log(err.message);
     dispatch({
       type: AUTH_ACTIONS.LOGIN_FAILED,
-      payload: err.message,
+      payload: { message: err.message },
     });
   }
 };
@@ -238,14 +238,13 @@ export const signup = async (
 
     dispatch({
       type: AUTH_ACTIONS.SIGNUP_SUCCESS,
-      // payload: "Signup successful!",
     });
     onSuccess();
   } catch (err) {
     console.log(err.message);
     dispatch({
       type: AUTH_ACTIONS.SIGNUP_FAILED,
-      payload: err.message,
+      payload: { field: "form", message: "Signup failed." },
     });
   }
 };

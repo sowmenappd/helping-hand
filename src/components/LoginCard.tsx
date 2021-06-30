@@ -73,8 +73,8 @@ const LoginCard: React.FC<{
                 payload: { field: "username", value: e.currentTarget.value },
               })
             }
-            border="2px"
-            borderColor={error ? "red.400" : "transparent"}
+            borderWidth={error.username ? 2 : 0}
+            borderColor={error.username ? "red.400" : "white"}
           />
           <Input
             value={password}
@@ -91,11 +91,11 @@ const LoginCard: React.FC<{
                 payload: { field: "password", value: e.currentTarget.value },
               })
             }
-            border="2px"
-            borderColor={error ? "red.400" : "transparent"}
+            borderWidth={error.password ? 2 : 0}
+            borderColor={error.password ? "red.400" : "white"}
           />
           <Text color={"red.500"} fontSize={{ base: "sm", sm: "md" }}>
-            {error}
+            {typeof error === "string" ? error : error.message}
           </Text>
         </Stack>
         <Button

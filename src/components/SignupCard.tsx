@@ -15,8 +15,9 @@ import ImageUploader from "./ImageUploader";
 
 const SignupCard: React.FC<{
   onActivateLogin: any;
+  onSignupSuccess: any;
 }> = (props) => {
-  const { onActivateLogin } = props;
+  const { onActivateLogin, onSignupSuccess } = props;
   const [state, dispatch] = useAuthContext();
   const {
     username,
@@ -30,7 +31,6 @@ const SignupCard: React.FC<{
     error,
   } = state;
 
-  const toast = useToast();
   const handleSignup = async () => {
     signup(
       {
@@ -44,16 +44,7 @@ const SignupCard: React.FC<{
       },
       dispatch,
       () => {
-        toast({
-          title: "Account creation successful.",
-          description:
-            "Your account has been created. You can now login with your username and password.",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-          position: "bottom",
-        });
-        onActivateLogin();
+        onSignupSuccess();
       }
     );
   };
@@ -211,7 +202,7 @@ const SignupCard: React.FC<{
           />
           {error && (
             <Text color={"red.500"} fontSize={{ base: "sm", sm: "md" }}>
-              {error.message || error}
+              {typeof error === "string" ? error : error.message}
             </Text>
           )}
         </Stack>

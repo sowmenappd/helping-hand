@@ -208,6 +208,8 @@ const PostPage: React.FC = () => {
                   disabled={
                     isMine(post, username)
                       ? false
+                      : !post.hidden
+                      ? false
                       : messages && messages.length < 2
                   }
                   onClose={() => {

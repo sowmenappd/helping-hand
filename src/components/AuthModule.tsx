@@ -6,6 +6,7 @@ import {
   Text,
   Container,
   SimpleGrid,
+  useToast,
 } from "@chakra-ui/react";
 import { useAuthContext } from "../store/auth";
 import LoginCard from "./LoginCard";
@@ -14,6 +15,7 @@ import AuthScreenBlurComponent from "./AuthScreenBlurComponent";
 
 const AuthModule = () => {
   const [mode, setMode] = useState("login");
+  const toast = useToast();
 
   const [state, dispatch] = useAuthContext();
 
@@ -68,7 +70,21 @@ const AuthModule = () => {
             state={state}
           />
         ) : (
-          <SignupCard onActivateLogin={() => setMode("login")} />
+          <SignupCard
+            onActivateLogin={() => setMode("login")}
+            onSignupSuccess={() => {
+              setMode("login");
+              toast({
+                title: "Account creation successful.",
+                description:
+                  "Your account has been created. You can now login with your username and password.",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+                position: "bottom",
+              });
+            }}
+          />
         )}
       </Container>
       <AuthScreenBlurComponent
