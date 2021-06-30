@@ -85,7 +85,7 @@ const PostPage: React.FC = () => {
       {
         type: NOTIFICATION_TYPES.INCOMING_POST_MESSAGE_NOTIFICATION,
         content: {
-          sentFrom: post.username,
+          sentFrom: username,
           postTitle: post.title,
           message: msg,
           time: new Date().toISOString(),

@@ -14,11 +14,11 @@ import IncomingPostMessageNotificationCard from "../components/IncomingPostMessa
 import { NOTIFICATION_TYPES } from "../store/types";
 
 const NotificationsPage = () => {
-  const [{ token }] = useAuthContext();
+  const [{ username, token }] = useAuthContext();
   const [notifications, nDispatch] = useNotificationsContext();
 
   const handleNotificationRead = (id: string) => {
-    readNotification(id, nDispatch, token);
+    readNotification(id, username, nDispatch, token);
   };
 
   const handleViewMessage = () => {};

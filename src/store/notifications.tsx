@@ -35,7 +35,8 @@ const notificationsReducer = (state: any, action: Dispatch) => {
       break;
     case NOTIFICATION_TYPES.READ_NOTIFICATION:
       const idx = state.data.findIndex((n: any) => n.id === action.payload);
-      state.data[idx].read = true;
+      state.data[idx] = { ...state.data[idx], read: true };
+      state.data = [...state.data];
       break;
   }
 };
@@ -72,7 +73,7 @@ export const fetchNotifications = (
     type: NOTIFICATION_TYPES.FETCH_NOTIFICATIONS,
   });
 
-  const query = `SELECT * FROM ${process.env.NODE_ENV}.notifications WHERE username = "${username}" AND read = "false"`;
+  const query = `SELECT * FROM ${process.env.NODE_ENV}.notifications WHERE username = "${username}" AND read = "false" ORDER BY __createdtime__ DESC`;
 
   db.executeSQLQuery(query, config)
     .then(({ data }) => {
@@ -89,17 +90,24 @@ export const fetchNotifications = (
 };
 export const readNotification = (
   id: string,
+  username: string,
   dispatch: (action: Dispatch) => void,
   token: string
 ) => {
   const config = makeAuthConfigWithToken(token);
   const query = `UPDATE ${process.env.NODE_ENV}.notifications SET read = "true" WHERE id = "${id}"`;
 
-  dispatch({
-    type: NOTIFICATION_TYPES.READ_NOTIFICATION,
-    payload: id,
-  });
-  return db.executeSQLQuery(query, config).catch((err) => {
-    console.log(err.message);
-  });
+  return db
+    .executeSQLQuery(query, config)
+    .then(() => {
+      console.log("dispatch");
+      dispatch({
+        type: NOTIFICATION_TYPES.READ_NOTIFICATION,
+        payload: id,
+      });
+      fetchNotifications(username, dispatch, token);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
