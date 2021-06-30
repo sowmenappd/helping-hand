@@ -1,16 +1,12 @@
 import db from "./db";
+import { getCredentialConfig, makeAuthConfigWithToken } from "./misc";
 
 class AuthController {
   constructor() {}
 
   async login({ username, password }: any) {
     try {
-      const config = {
-        auth: {
-          username: process.env.REACT_APP_HARPERDB_USERNAME || "",
-          password: process.env.REACT_APP_HARPERDB_PASSWORD || "",
-        },
-      };
+      const config = getCredentialConfig();
 
       const res = await db.authenticate({ username, password }, config);
       const { operation_token: token, refresh_token } = res.data;
@@ -61,26 +57,25 @@ class AuthController {
     changes: { first_name: string; last_name: string; bio: string },
     token: string
   ) {
+    const config = makeAuthConfigWithToken(token);
     try {
-      return db.updateOne(process.env.NODE_ENV, "users", id, changes, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      return db.updateOne(process.env.NODE_ENV, "users", id, changes, config);
     } catch (err) {
       return Promise.reject(err);
     }
   }
 
   async fetchUserStats(username: string, token: string) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
+
     try {
-      const handsCountQuery = `SELECT COUNT(id) as hands FROM ${process.env.NODE_ENV}.post_messages WHERE owner = "${username}"`;
-      const friendsCountQuery = `SELECT COUNT(id) as friends FROM development.connections WHERE (user1 = "${username}" OR user2 = "${username}") AND connections.friends = "true"`;
+      const handsCountQuery = `
+      SELECT DISTINCT COUNT(post_messages.postId) as hands
+      FROM ${process.env.NODE_ENV}.post_messages
+      LEFT JOIN ${process.env.NODE_ENV}.posts
+      ON posts.id = post_messages.postId 
+      WHERE post_messages.owner = "${username}" AND posts.username != "${username}"`;
+      const friendsCountQuery = `SELECT COUNT(id) as friends FROM ${process.env.NODE_ENV}.connections WHERE (user1 = "${username}" OR user2 = "${username}") AND connections.friends = "true"`;
       const postsCountQuery = `SELECT COUNT(id) as posts FROM ${process.env.NODE_ENV}.posts WHERE username = "${username}"`;
 
       const data = await Promise.all([

@@ -46,10 +46,10 @@ const UserStatsCard: React.FC = () => {
               bg="gray.100"
               borderRadius="xl"
             >
-              <StatLabel fontSize="2xl" p={3}>
+              <StatLabel fontSize="2xl" pt={2} pb={0} mb={-1} px={3}>
                 <b>Friends</b>
               </StatLabel>
-              <StatNumber fontSize="3xl" mt={-2} mb={1}>
+              <StatNumber fontSize="3xl" mb={1}>
                 {stats.data.friends}
               </StatNumber>
             </Stat>

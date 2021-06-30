@@ -1,4 +1,5 @@
 import client from "./http_client";
+import { getCredentialConfig } from "./misc";
 
 class Database {
   constructor() {}
@@ -45,12 +46,7 @@ class Database {
           password: password,
           active: true,
         },
-        {
-          auth: {
-            username: process.env.REACT_APP_HARPERDB_USERNAME || "",
-            password: process.env.REACT_APP_HARPERDB_PASSWORD || "",
-          },
-        }
+        getCredentialConfig()
       );
       await this.addOne(
         process.env.NODE_ENV,
@@ -62,12 +58,7 @@ class Database {
           username,
           email,
         },
-        {
-          auth: {
-            username: process.env.REACT_APP_HARPERDB_USERNAME || "",
-            password: process.env.REACT_APP_HARPERDB_PASSWORD || "",
-          },
-        }
+        getCredentialConfig()
       );
 
       return Promise.resolve();

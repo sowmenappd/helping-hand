@@ -187,6 +187,18 @@ export const addFriend = async (
   );
 };
 
+export const addNotification = (
+  targetUsername: string,
+  notificationObject: any,
+  token: string
+) => {
+  return PostController.addNotification(
+    targetUsername,
+    { ...notificationObject, read: false },
+    token
+  );
+};
+
 export const addPostMessage = async (
   post: any,
   senderUsername: string,

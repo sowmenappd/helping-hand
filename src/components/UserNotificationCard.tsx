@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   HStack,
   Center,
   useColorModeValue,
   IconButton,
   Link,
-  Box,
   Text,
   AvatarBadge,
   Avatar,
@@ -16,6 +15,12 @@ import {
   IoMdHome as HomeIcon,
 } from "react-icons/io";
 import { AiFillMessage as MessagesIcon } from "react-icons/ai";
+import {
+  fetchNotifications,
+  useNotificationsContext,
+} from "../store/notifications";
+import { useLocation } from "react-router-dom";
+import { useAuthContext } from "../store/auth";
 
 const TAG_COLORS = [
   "green.100",
@@ -38,6 +43,21 @@ interface Props {
 }
 
 const UserNotificationCard: React.FC<Props> = (props) => {
+  const [notifications, dispatch] = useNotificationsContext();
+  const { data, loading, error } = notifications;
+
+  const location = useLocation();
+  const [{ token, username }, _] = useAuthContext();
+
+  useEffect(() => {
+    let isSubscribed = true;
+    if (isSubscribed) fetchNotifications(username, dispatch, token);
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [location.pathname]);
+
   return (
     <Center py={6}>
       <HStack
@@ -59,21 +79,8 @@ const UserNotificationCard: React.FC<Props> = (props) => {
           />
         </Link>
         <Link href="/home/notifications">
-          {/* <Avatar
-            bg="gray.100"
-            icon={<NotificationsIcon fontSize={28} color="#4267B2" />}
-          >
-            <AvatarBadge
-              borderColor="white"
-              bg="green.200"
-              boxSize="1.5em"
-              padding={1}
-            >
-              1
-            </AvatarBadge>
-          </Avatar> */}
           <ButtonWithCountBadge
-            count={2}
+            count={loading ? 0 : data.length}
             icon={<NotificationsIcon fontSize={28} color="#4267B2" />}
           />
         </Link>
@@ -107,7 +114,7 @@ const ButtonWithCountBadge: React.FC<{
 }> = (props) => {
   return (
     <Avatar bg="gray.100" icon={props.icon}>
-      {props.count && (
+      {props.count != 0 && (
         <AvatarBadge
           borderColor={props.badgeBorderColor || "white"}
           bg={props.badgeTintColor || "green.200"}

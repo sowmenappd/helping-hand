@@ -1,4 +1,5 @@
 import db from "./db";
+import { makeAuthConfigWithToken } from "./misc";
 
 class PostController {
   constructor() {}
@@ -50,11 +51,7 @@ class PostController {
     orderBy: string = "posts.__createdtime__",
     order: string = "DESC"
   ) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
 
     const blockedIds = await this.getBlockedUsernamesForUser(
       ownUsername,
@@ -91,11 +88,7 @@ class PostController {
     ORDER BY post_messages.__createdtime__ ASC
     `;
 
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
     console.log("fetchPostMessagesQuery", sqlQuery);
     return db.executeSQLQuery(sqlQuery, config);
   }
@@ -105,11 +98,8 @@ class PostController {
     otherUser: string,
     token: string
   ) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
+
     const sqlQuery = `
     SELECT DISTINCT
     post_messages.id, owner, message, replyTo, postId, connections.friends
@@ -128,11 +118,9 @@ class PostController {
 
   public async addPost(post: any, token: string) {
     console.log(post);
-    return db.addOne(process.env.NODE_ENV, "posts", post, {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    });
+    const config = makeAuthConfigWithToken(token);
+
+    return db.addOne(process.env.NODE_ENV, "posts", post, config);
   }
 
   public async addConnection(
@@ -142,11 +130,8 @@ class PostController {
     user2: string,
     token: string
   ) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
+
     // first search if connection exists
     const connectionExistsQuery = `SELECT id 
     FROM ${process.env.NODE_ENV}.connections
@@ -167,6 +152,21 @@ class PostController {
     }
   }
 
+  public async addNotification(
+    targetUsername: string,
+    notificationObject: any,
+    token: string
+  ) {
+    const config = makeAuthConfigWithToken(token);
+
+    return db.addOne(
+      process.env.NODE_ENV,
+      "notifications",
+      { username: targetUsername, ...notificationObject },
+      config
+    );
+  }
+
   public async updateConnection(
     friends: boolean,
     blocked: boolean,
@@ -174,11 +174,7 @@ class PostController {
     user2: string,
     token: string
   ) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
 
     const query = `
     UPDATE ${process.env.NODE_ENV}.connections 
@@ -199,11 +195,8 @@ class PostController {
     firstTime: boolean,
     token: string
   ) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
+
     if (firstTime) {
       await this.addConnection(
         false,
@@ -222,11 +215,7 @@ class PostController {
   }
 
   public async search(query: string, ownUsername: string, token: string) {
-    const config = {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    };
+    const config = makeAuthConfigWithToken(token);
 
     const blockedIds = await this.getBlockedUsernamesForUser(
       ownUsername,

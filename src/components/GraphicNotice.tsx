@@ -5,6 +5,9 @@ const GraphicNotice: React.FC<{
   img?: any;
   title?: string;
   subtitle?: string;
+  bg?: string;
+  containerStyle?: React.CSSProperties;
+  children?: React.ReactChild;
 }> = (props) => {
   return (
     <Box
@@ -13,6 +16,8 @@ const GraphicNotice: React.FC<{
       flexDir="column"
       alignItems="center"
       justifyContent="center"
+      bg={props.bg || "transparent"}
+      style={props.containerStyle}
     >
       {props.img && <Image src={props.img} boxSize="250px" py={10} />}
       <Heading py={10} textAlign="center">
@@ -23,6 +28,7 @@ const GraphicNotice: React.FC<{
           </Text>
         )}
       </Heading>
+      {props.children}
     </Box>
   );
 };

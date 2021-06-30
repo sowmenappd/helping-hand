@@ -25,13 +25,14 @@ import FirstTimeNotice from "../components/FirstTimeNotice";
 
 import {
   addFriend,
+  addNotification,
   addPostMessage,
   hideViewPost,
   usePostsContext,
 } from "../store/posts";
 
 import { useAuthContext } from "../store/auth";
-import { POST_ACTIONS } from "../store/types";
+import { NOTIFICATION_TYPES, POST_ACTIONS } from "../store/types";
 
 import noMessagesSvg from "../images/no_messages.svg";
 import GraphicNotice from "../components/GraphicNotice";
@@ -154,20 +155,48 @@ const PostPage: React.FC = () => {
                   {messages && !messages[0].friends && (
                     <MakeFriendsNotice
                       // TODO: right now all messages from people to a certain person will appear at once for the post owner, need to group them and use a select dropdown to show a specific person's reply
-                      onMakeFriends={() => {
+                      onMakeFriends={async () => {
                         const _u = messages[0].owner;
                         console.log(_u);
                         if (!_u) return;
                         // TODO: add function that adds an entry to connections table with the users
-                        addFriend(post.username, _u, post, dispatch, token);
-                        toast({
-                          title: "Added to friends list!",
-                          description: `You are now friends with ${_u}.`,
-                          status: "success",
-                          duration: 3000,
-                          isClosable: true,
-                          position: "top-right",
-                        });
+                        try {
+                          await addFriend(
+                            post.username,
+                            _u,
+                            post,
+                            dispatch,
+                            token
+                          );
+                          await addNotification(
+                            _u,
+                            {
+                              type: NOTIFICATION_TYPES.ADD_FRIEND,
+                              content: {
+                                sentFrom: post.username,
+                                time: new Date().toISOString(),
+                              },
+                            },
+                            token
+                          );
+                          toast({
+                            title: "Added to friends list!",
+                            description: `You are now friends with ${_u}.`,
+                            status: "success",
+                            duration: 3000,
+                            isClosable: true,
+                            position: "top-right",
+                          });
+                        } catch (err) {
+                          toast({
+                            title: "Cannot add friend.",
+                            description: `Something went wrong. Please try again.`,
+                            status: "error",
+                            duration: 3000,
+                            isClosable: true,
+                            position: "top-right",
+                          });
+                        }
                         // TODO: add a notifications table entry
                       }}
                     />
