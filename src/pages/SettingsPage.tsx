@@ -313,6 +313,7 @@ const SettingsPhotoField: React.FC<{
         <ImageUploader
           showImage={false}
           imgB64={props.img}
+          disabled={props.isDisabled}
           buttonText={imageChanged ? "Photo selected" : "Upload picture"}
           onImage={(imgB64: string) => {
             setImageChanged(true);

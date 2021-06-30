@@ -80,7 +80,7 @@ class AuthController {
     };
     try {
       const handsCountQuery = `SELECT COUNT(id) as hands FROM ${process.env.NODE_ENV}.post_messages WHERE owner = "${username}"`;
-      const friendsCountQuery = `SELECT COUNT(id) as friends FROM development.connections WHERE (user1 = "sowmenr1" OR user2 = "sowmenr1") AND connections.friends = "true"`;
+      const friendsCountQuery = `SELECT COUNT(id) as friends FROM development.connections WHERE (user1 = "${username}" OR user2 = "${username}") AND connections.friends = "true"`;
       const postsCountQuery = `SELECT COUNT(id) as posts FROM ${process.env.NODE_ENV}.posts WHERE username = "${username}"`;
 
       const data = await Promise.all([

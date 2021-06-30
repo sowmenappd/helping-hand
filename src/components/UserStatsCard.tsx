@@ -9,7 +9,7 @@ import {
   StatNumber,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { fetchUserState, useAuthContext } from "../store/auth";
+import { fetchUserStats, useAuthContext } from "../store/auth";
 
 const UserStatsCard: React.FC = () => {
   const [row] = useMediaQuery("(min-width: 320px)");
@@ -18,7 +18,7 @@ const UserStatsCard: React.FC = () => {
   const stats = state.stats;
 
   useEffect(() => {
-    fetchUserState(state.username, dispatch, state.token);
+    fetchUserStats(state.username, dispatch, state.token);
   }, []);
 
   if (!stats) return null;

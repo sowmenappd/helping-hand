@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Input, Image, Button } from "@chakra-ui/react";
 import { getBase64 } from "../util/image_converter";
 
@@ -6,6 +6,7 @@ const ImageUploader = (props: {
   imgB64: string;
   showImage: boolean;
   buttonText?: string;
+  disabled?: boolean;
   onImage: (imgB64: string) => void;
 }) => {
   const Base64Image = (props: { b64: string }) => {
@@ -42,6 +43,7 @@ const ImageUploader = (props: {
         onClick={() => {
           document.getElementById("fileUploader")?.click();
         }}
+        isDisabled={props.disabled}
       >
         {props.buttonText ||
           (props.imgB64 ? "Photo selected" : "Upload a photo")}

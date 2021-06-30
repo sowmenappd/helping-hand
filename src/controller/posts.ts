@@ -3,7 +3,9 @@ import db from "./db";
 class PostController {
   constructor() {}
 
-  private constructSearchPostsQueryBySearchKeywords(searchTerms: string[]) {
+  private constructSearchPostsQueryConditionsBySearchKeywords(
+    searchTerms: string[]
+  ) {
     const repeatFor = (attr: string, terms: string[]): string => {
       let sql = "";
 
@@ -21,9 +23,24 @@ class PostController {
     const descPatterns = repeatFor("description", searchTerms);
     const tagPatterns = repeatFor("tags", searchTerms);
 
-    const q = `SELECT * FROM ${process.env.NODE_ENV}.posts WHERE ${titlePatterns} or ${descPatterns} or ${tagPatterns}`;
-    console.log(q);
+    const q = `${titlePatterns} or ${descPatterns} or ${tagPatterns}`;
+    console.log("searchSQL", q);
     return q;
+  }
+
+  public async getBlockedUsernamesForUser(ownUsername: string, config: any) {
+    const getBlocksQuery1 = `SELECT user2 as username FROM development.connections
+    WHERE user1 = "${ownUsername}" AND blocked`;
+    const getBlocksQuery2 = `SELECT user1 as username FROM development.connections
+    WHERE user2 = "${ownUsername}" AND blocked`;
+    return Promise.all([
+      db.executeSQLQuery(getBlocksQuery1, config),
+      db.executeSQLQuery(getBlocksQuery2, config),
+    ]).then(([ids1, ids2]) => {
+      const u1 = ids1.data.map((d: any) => d.username);
+      const u2 = ids2.data.map((d: any) => d.username);
+      return [...u1, ...u2];
+    });
   }
 
   public async fetchPosts(
@@ -39,20 +56,12 @@ class PostController {
       },
     };
 
-    const getBlocksQuery1 = `SELECT user2 as username FROM development.connections
-    WHERE user1 = "${ownUsername}" AND blocked`;
-    const getBlocksQuery2 = `SELECT user1 as username FROM development.connections
-    WHERE user2 = "${ownUsername}" AND blocked`;
-    const blockedIds = await Promise.all([
-      db.executeSQLQuery(getBlocksQuery1, config),
-      db.executeSQLQuery(getBlocksQuery2, config),
-    ]).then(([ids1, ids2]) => {
-      const u1 = ids1.data.map((d: any) => d.username);
-      const u2 = ids2.data.map((d: any) => d.username);
-      return [...u1, ...u2];
-    });
-
+    const blockedIds = await this.getBlockedUsernamesForUser(
+      ownUsername,
+      config
+    );
     const blockedIdsString = blockedIds.map((id) => `"${id}"`).toString();
+
     console.log("blockedIdsString", blockedIdsString);
 
     let fetchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}")) WHERE posts.type = "${type}"`;
@@ -212,17 +221,32 @@ class PostController {
     );
   }
 
-  public async search(query: string, token: string) {
-    const constructedSQL = this.constructSearchPostsQueryBySearchKeywords(
-      query.split(" ").filter((t) => t !== "")
-    );
+  public async search(query: string, ownUsername: string, token: string) {
     const config = {
       headers: {
         authorization: `Bearer ${token}`,
       },
     };
 
-    return db.executeSQLQuery(constructedSQL, config);
+    const blockedIds = await this.getBlockedUsernamesForUser(
+      ownUsername,
+      config
+    );
+    const blockedIdsString = blockedIds.map((id) => `"${id}"`).toString();
+
+    console.log("blockedIdsString", blockedIdsString);
+
+    let searchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}")) WHERE posts.type = "help"`;
+    if (blockedIds.length > 0) {
+      searchPostsQuery += ` AND posts.username NOT IN (${blockedIdsString}) AND `;
+    }
+
+    const searchQueryConditions =
+      this.constructSearchPostsQueryConditionsBySearchKeywords(
+        query.split(" ").filter((t) => t !== "")
+      );
+    searchPostsQuery += searchQueryConditions;
+    return db.executeSQLQuery(searchPostsQuery, config);
   }
 }
 

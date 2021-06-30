@@ -268,7 +268,7 @@ export const signup = async (
   }
 };
 
-export const fetchUserState = async (
+export const fetchUserStats = async (
   username: string,
   dispatch: (obj: Dispatch) => void,
   token: any

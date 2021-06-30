@@ -28,11 +28,7 @@ const HelpPostListings: React.FC = (props) => {
   }, [state.currentPostsType]);
 
   return (
-    <VStack
-      // maxW={"6xl"}
-      w={["full", "full", "full", "2xl", "4xl"]}
-      alignItems="flex-start"
-    >
+    <VStack w={["full", "full", "full", "2xl", "4xl"]} alignItems="flex-start">
       <Heading as="h1" fontSize={["4xl", "6xl"]}>
         <span
           style={{

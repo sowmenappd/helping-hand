@@ -14,12 +14,17 @@ import { usePostsContext, searchPosts } from "../store/posts";
 
 const AllPostsPage: React.FC = () => {
   const [searchText, setSearchText] = useState("");
+  const [canSearch, setCanSearch] = useState(false);
 
   const [{ posts }, dispatch] = usePostsContext();
-  const [{ token }] = useAuthContext();
+  const [{ token, username }] = useAuthContext();
 
   useEffect(() => {
-    searchPosts(searchText, dispatch, token);
+    setCanSearch(searchText.trim().length > 3);
+    if (canSearch) {
+      console.log("searching");
+      searchPosts(searchText, username, dispatch, token);
+    }
   }, [searchText]);
 
   return (
@@ -30,7 +35,7 @@ const AllPostsPage: React.FC = () => {
           setSearchText(text);
         }}
       />
-      {searchText?.length > 3 ? (
+      {canSearch ? (
         <HelpPostSearchResults
           loading={posts.loading}
           results={posts.data}

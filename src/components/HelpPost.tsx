@@ -74,21 +74,21 @@ export const PostAuthor: React.FC<PostAuthorProps> = (props) => {
   );
 };
 
-export interface HelpPostProps {
-  id: string;
-  author: {
-    name: string; // combine first_name, last_name
-    img: string;
-  };
-  username: string;
-  datetimeISO: string;
-  title: string;
-  description: string;
-  tags: string[];
-  hidden: boolean;
-}
+// export interface HelpPostProps {
+//   id: string;
+//   author: {
+//     name: string; // combine first_name, last_name
+//     img: string;
+//   };
+//   username: string;
+//   datetimeISO: string;
+//   title: string;
+//   description: string;
+//   tags: string[];
+//   hidden: boolean;
+// }
 
-const HelpPost: React.FC<HelpPostProps> = (post) => {
+const HelpPost: React.FC<any> = (post) => {
   const {
     id,
     username,
@@ -154,21 +154,23 @@ const HelpPost: React.FC<HelpPostProps> = (post) => {
             mt={4}
           >
             <PostAuthor
-              hidden={hidden}
+              hidden={myUsername === username ? false : !post.friends}
               imgUrl={author.img}
               name={author.name}
               username={username}
               datetimeISO={new Date(datetimeISO)} //TODO: add date to post
             />
             <Box display="flex" flexDirection="row">
-              <IconButton
-                aria-label="view-post"
-                rounded="2xl"
-                color="red.400"
-                bgColor="transparent"
-              >
-                <ReportIcon size={28} />
-              </IconButton>
+              {/* {username != myUsername && (
+                <IconButton
+                  aria-label="view-post"
+                  rounded="2xl"
+                  color="red.400"
+                  bgColor="transparent"
+                >
+                  <ReportIcon size={28} />
+                </IconButton>
+              )} */}
               <IconButton
                 aria-label="view-post"
                 rounded="2xl"
@@ -184,7 +186,7 @@ const HelpPost: React.FC<HelpPostProps> = (post) => {
                   push(`/home/post/${id}`);
                 }}
               >
-                <ForwardIcon size={28} />
+                <ForwardIcon size={36} />
               </IconButton>
             </Box>
           </Box>

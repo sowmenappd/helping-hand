@@ -10,6 +10,8 @@ const HelpPostSearchResults: React.FC<{
 }> = (props) => {
   const { searchText, loading, results } = props;
 
+  console.log("search result", results);
+
   return (
     <VStack spacing={4} alignItems="flex-start">
       <Box

@@ -109,7 +109,7 @@ const PostHelpSection = () => {
             value={title}
             onChange={(e) => handleFieldChange("title", e.currentTarget.value)}
             borderWidth="2px"
-            placeholder="Add a subject"
+            placeholder="Add a title"
             onFocus={() => handleTextFocus(true)}
           />
           <Textarea
@@ -191,7 +191,7 @@ const PostSectionButtonPanel: React.FC<{
     <ButtonGroup fontSize={["xl", "5xl"]} spacing={0}>
       <Button
         colorScheme="twitter"
-        borderRightRadius="0"
+        // borderRightRadius="0"
         rounded="3xl"
         borderRightWidth="thin"
         borderRightColor="whiteAlpha.100"
@@ -201,14 +201,14 @@ const PostSectionButtonPanel: React.FC<{
       >
         Post
       </Button>
-      <Button
+      {/* <Button
         colorScheme="messenger"
         borderLeftRadius="0"
         rightIcon={<AddImageIcon size={20} />}
         disabled={props.title?.length < 4 || props.description?.length < 6}
       >
         Image
-      </Button>
+      </Button> */}
     </ButtonGroup>
   );
 };

@@ -337,6 +337,7 @@ export const fetchPostMessagesForParticipatingUser = async (
 
 export const searchPosts = async (
   searchText: string,
+  ownUsername: string,
   dispatch: (obj: Dispatch) => void,
   token: string
 ) => {
@@ -344,7 +345,7 @@ export const searchPosts = async (
   dispatch({
     type: POST_ACTIONS.SEARCH_POSTS,
   });
-  PostController.search(searchText, token)
+  PostController.search(searchText, ownUsername, token)
     .then(({ data }) => {
       dispatch({
         type: POST_ACTIONS.FETCH_POSTS_SUCCESS,
