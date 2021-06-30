@@ -12,6 +12,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import { IoMdClose as CloseIcon } from "react-icons/io";
 import { BsChevronDown as DownArrow } from "react-icons/bs";
@@ -58,11 +59,12 @@ const PostPage: React.FC = () => {
     dispatch,
   ] = usePostsContext();
 
-  console.log("activeMessageThread", activeMessageThread);
+  const toast = useToast();
+
   const { messages, user1, user2 } = activeMessageThread;
 
   useEffect(() => {
-    chatWindow.current.scrollIntoView({ behavior: "smooth" });
+    chatWindow.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeMessageThread]);
 
   const handleMessageUser = (msg: string, firsTime: boolean) => {
@@ -158,6 +160,14 @@ const PostPage: React.FC = () => {
                         if (!_u) return;
                         // TODO: add function that adds an entry to connections table with the users
                         addFriend(post.username, _u, post, dispatch, token);
+                        toast({
+                          title: "Added to friends list!",
+                          description: `You are now friends with ${_u}.`,
+                          status: "success",
+                          duration: 3000,
+                          isClosable: true,
+                          position: "top-right",
+                        });
                         // TODO: add a notifications table entry
                       }}
                     />

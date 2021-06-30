@@ -95,6 +95,7 @@ class Database {
   public async updateOne(
     schema: string,
     table: string,
+    id: string,
     entry: any,
     config?: any
   ): Promise<any> {
@@ -104,7 +105,7 @@ class Database {
         operation: "update",
         schema: schema,
         table: table,
-        records: [entry],
+        records: [{ ...entry, id }],
       },
       config
     );

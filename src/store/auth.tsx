@@ -51,6 +51,7 @@ const authReducer = (state: any, action: Dispatch) => {
       state.loading = false;
       state.token = action.payload.token;
       state.refresh_token = action.payload.refresh_token;
+      state.id = action.payload.id;
       state.username = action.payload.username;
       state.first_name = action.payload.first_name;
       state.last_name = action.payload.last_name;

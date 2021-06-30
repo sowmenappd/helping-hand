@@ -18,6 +18,7 @@ class AuthController {
       const userRes = await db.findBy("users", "username", username, config);
 
       const userObj = userRes.data[0];
+      delete userObj.password;
       const finalObj = { ...userObj, token, refresh_token };
       return finalObj;
     } catch (err) {
@@ -36,6 +37,22 @@ class AuthController {
       });
 
       return Promise.resolve();
+    } catch (err) {
+      return Promise.reject(err);
+    }
+  }
+
+  async updateProfile(
+    id: string,
+    changes: { first_name: string; last_name: string; bio: string },
+    token: string
+  ) {
+    try {
+      return db.updateOne(process.env.NODE_ENV, "users", id, changes, {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      });
     } catch (err) {
       return Promise.reject(err);
     }

@@ -41,7 +41,7 @@ const MainView = () => {
             {authState.token ? (
               <Sidebar
                 user={{
-                  name: authState.first_name + authState.last_name,
+                  name: authState.first_name + " " + authState.last_name,
                   username: authState.username,
                   imgB64: authState.imgB64,
                   bio: authState.bio,

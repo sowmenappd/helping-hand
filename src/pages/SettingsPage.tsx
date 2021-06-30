@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   VStack,
   Box,
@@ -19,19 +19,73 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Link,
+  useToast,
 } from "@chakra-ui/react";
-import { logout, useAuthContext } from "../store/auth";
 import { useHistory } from "react-router-dom";
 
+import { logout, useAuthContext } from "../store/auth";
+import { AUTH_ACTIONS } from "../store/types";
+
+import authController from "../controller/auth";
+
 const SettingsPage = () => {
-  const disabled = true;
+  const [disabled, setEditable] = useState(true);
+  const [changed, setChanged] = useState(false);
 
   const history = useHistory();
 
   const [state, dispatch] = useAuthContext();
-  const { first_name, last_name, bio, username, imgB64 } = state;
+  const { first_name, last_name, bio, username, imgB64, id } = state;
+  const changeable = { first_name, last_name, bio };
+  const [edittedState, setEdits] = useState(changeable) as any;
 
   console.log("state", state);
+
+  const handleFieldEdit = (field: string, value: string) => {
+    if (field === "tags") {
+    } else setEdits({ ...edittedState, [field]: value });
+    console.log(field, value);
+
+    setChanged(true);
+  };
+
+  const updateProfile = async (id: string) => {
+    setEditable(false);
+    try {
+      await authController.updateProfile(id, edittedState, state.token);
+
+      Object.keys(changeable).forEach((field: string) => {
+        dispatch({
+          type: AUTH_ACTIONS.FIELD,
+          payload: {
+            field: field,
+            value: edittedState[field],
+          },
+        });
+      });
+
+      toast({
+        title: "Action successful.",
+        description: "Your profile has been updated.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } catch (err) {
+      setChanged(false);
+      toast({
+        title: "Action failed.",
+        description: "Something went wrong. Please try again.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "top-right",
+      });
+    } finally {
+      setEdits({ first_name, last_name, bio });
+    }
+  };
 
   const handleSignout = () => {
     logout(dispatch);
@@ -41,15 +95,18 @@ const SettingsPage = () => {
   // alert dialog control
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const toast = useToast();
+
   return (
     <>
       <VStack spacing={4} alignItems="flex-start">
-        <Box
-          w={["full", "full", "full", "2xl", "4xl"]}
-          // w={["100%", "100%", "100%", "100%", "4xl"]}
-          // maxW={["xl", "xl", "xl", "2xl", "4xl"]}
-        >
-          <Heading as="h1" fontSize={["4xl", "6xl"]}>
+        <Box w={["full", "full", "full", "2xl", "4xl"]}>
+          <Heading
+            as="h1"
+            fontSize={["4xl", "6xl"]}
+            display="flex"
+            alignItems="baseline"
+          >
             <span
               style={{
                 color: "#272727",
@@ -61,6 +118,19 @@ const SettingsPage = () => {
               <b>#</b>
             </span>
             Settings
+            <Text
+              color="blue.300"
+              textDecorationLine="underline"
+              _hover={{
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                if (!disabled && changed) updateProfile(id);
+                setEditable(!disabled);
+              }}
+            >
+              {disabled ? "Edit" : changed ? "Save" : "Close"}
+            </Text>
           </Heading>
           <Stack direction={["column"]} mt={2} mx={4}>
             <Heading size="xl" pt={10} px={2}>
@@ -71,15 +141,17 @@ const SettingsPage = () => {
                 label="first_name"
                 labelDisplay="First name"
                 placeholder="Loading.."
-                value={first_name}
+                value={edittedState.first_name}
                 disabled={disabled}
+                onChange={handleFieldEdit}
               />
               <SettingsInputField
                 label="last_name"
                 labelDisplay="Last name"
                 placeholder="Loading.."
-                value={last_name}
+                value={edittedState.last_name}
                 disabled={disabled}
+                onChange={handleFieldEdit}
               />
             </Stack>
             <Stack direction={["column", "column", "row"]} px={2} pt={4}>
@@ -88,7 +160,7 @@ const SettingsPage = () => {
                 labelDisplay="Username"
                 placeholder="Loading.."
                 value={username}
-                disabled={disabled}
+                disabled={true}
                 small
               />
               <SettingsPhotoField img={imgB64} />
@@ -99,9 +171,10 @@ const SettingsPage = () => {
                 label="bio"
                 labelDisplay="Personal biography"
                 placeholder=""
-                value={bio}
+                value={edittedState.bio || ""}
                 disabled={disabled}
                 textArea
+                onChange={handleFieldEdit}
               />
             </Stack>
             <Box my={5} px={2} pt={4}>
@@ -175,6 +248,7 @@ const SettingsInputField: React.FC<{
   disabled: boolean;
   textArea?: boolean;
   small?: boolean;
+  onChange?: (field: string, value: any) => void;
 }> = (props) => {
   return (
     <VStack maxW="full" w="full" spacing={2} align="flex-start">
@@ -190,6 +264,9 @@ const SettingsInputField: React.FC<{
             isDisabled={props.disabled}
             size="lg"
             fontSize="xl"
+            onChange={({ currentTarget: { value } }) =>
+              props.onChange?.(props.label, value)
+            }
           />
         </>
       ) : (
@@ -201,6 +278,9 @@ const SettingsInputField: React.FC<{
           size="lg"
           fontSize="xl"
           maxW={props.small ? "sm" : "-moz-initial"}
+          onChange={({ currentTarget: { value } }) =>
+            props.onChange?.(props.label, value)
+          }
         />
       )}
     </VStack>
