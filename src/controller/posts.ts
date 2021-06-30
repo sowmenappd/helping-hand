@@ -39,87 +39,29 @@ class PostController {
       },
     };
 
-    const queryFetchAllowedFriendIds1 = `SELECT user1 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user2="${ownUsername}" AND NOT blocked`;
-    const queryFetchAllowedFriendIds2 = `SELECT user2 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user1="${ownUsername}" AND NOT blocked`;
+    const getBlocksQuery1 = `SELECT user2 as username FROM development.connections
+    WHERE user1 = "${ownUsername}" AND blocked`;
+    const getBlocksQuery2 = `SELECT user1 as username FROM development.connections
+    WHERE user2 = "${ownUsername}" AND blocked`;
+    const blockedIds = await Promise.all([
+      db.executeSQLQuery(getBlocksQuery1, config),
+      db.executeSQLQuery(getBlocksQuery2, config),
+    ]).then(([ids1, ids2]) => {
+      const u1 = ids1.data.map((d: any) => d.username);
+      const u2 = ids2.data.map((d: any) => d.username);
+      return [...u1, ...u2];
+    });
 
-    return Promise.all([
-      db.executeSQLQuery(queryFetchAllowedFriendIds1, config),
-      db.executeSQLQuery(queryFetchAllowedFriendIds2, config),
-    ])
-      .then(async (values: any) => {
-        const array1 = values[0].data;
-        const array2 = values[1].data;
-        const combined = [...array1, ...array2];
-        const allIdsStringArray = combined.map((x) => `"${x.username}"`);
-        const allIdsString = allIdsStringArray.toString();
+    const blockedIdsString = blockedIds.map((id) => `"${id}"`).toString();
+    console.log("blockedIdsString", blockedIdsString);
 
-        const queryFetchAllowedPosts = `
-      SELECT DISTINCT
-      posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends, connections.blocked 
-      FROM ${process.env.NODE_ENV}.posts
-      FULL OUTER JOIN ${process.env.NODE_ENV}.connections
-      ON (connections.user1 = posts.username OR connections.user2 = posts.username) 
-      WHERE posts.type="${type}" AND 
-        (
-          username IN (${allIdsString}) 
-          AND 
-          (connections.user1 = "${ownUsername}" OR connections.user2 = "${ownUsername}")
-        )
-      ORDER BY ${orderBy} ${order}
-      ;
-      `;
+    let fetchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}"))`;
+    if (blockedIds.length > 0) {
+      fetchPostsQuery += ` WHERE posts.username NOT IN (${blockedIdsString})`;
+    }
 
-        // posts of strangers
-        const queryFetchDisconnectedPosts = `
-          SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.blocked, connections.friends
-          FROM development.posts
-          INNER JOIN development.connections
-          ON 
-          (connections.user1 != posts.username
-          AND
-          connections.user2 != posts.username)
-          AND NOT connections.blocked AND NOT connections.friends AND posts.username != "${ownUsername}"
-      `;
-
-        const { data: disconnectedPosts } = await db.executeSQLQuery(
-          queryFetchDisconnectedPosts,
-          config
-        );
-
-        console.log("queryFetchAllowedPosts", queryFetchAllowedPosts);
-
-        return db
-          .executeSQLQuery(queryFetchAllowedPosts, config)
-          .then(async ({ data: otherPosts }: any) => {
-            // console.log("received", otherPosts);
-
-            const queryMyPosts = `
-            SELECT id, title, description, tags, username, author, datetimeISO
-            FROM ${process.env.NODE_ENV}.posts WHERE posts.type="${type}" AND username = "${ownUsername}" 
-            `;
-
-            const { data: myPostsData } = await db.executeSQLQuery(
-              queryMyPosts,
-              config
-            );
-            const myPosts = myPostsData.map((p: any) => ({
-              ...p,
-              friends: true,
-              blocked: false,
-            }));
-
-            const allPosts = [...otherPosts, ...myPosts, ...disconnectedPosts];
-
-            console.log("otherPosts", otherPosts);
-            console.log("myPosts", myPosts);
-            console.log("disconnectedPosts", disconnectedPosts);
-
-            return allPosts;
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    console.log(fetchPostsQuery);
+    return db.executeSQLQuery(fetchPostsQuery, config).then((res) => res.data);
   }
 
   public async fetchPostMessages(post: any, token: string) {
@@ -196,12 +138,24 @@ class PostController {
         authorization: `Bearer ${token}`,
       },
     };
-    return db.addOne(
-      process.env.NODE_ENV,
-      "connections",
-      { blocked, friends, user1, user2 },
-      config
-    );
+    // first search if connection exists
+    const connectionExistsQuery = `SELECT id 
+    FROM ${process.env.NODE_ENV}.connections
+    WHERE (user1 = ${user1} AND user2 = ${user2}) OR (user2 = ${user1} AND user1 = ${user2})
+    `;
+    const { data } = await db.executeSQLQuery(connectionExistsQuery, config);
+
+    if (data.length >= 1) {
+      console.log("connection exists update");
+      return this.updateConnection(friends, blocked, user1, user2, token);
+    } else {
+      return db.addOne(
+        process.env.NODE_ENV,
+        "connections",
+        { blocked, friends, user1, user2 },
+        config
+      );
+    }
   }
 
   public async updateConnection(
