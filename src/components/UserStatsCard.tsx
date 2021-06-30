@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Center,
@@ -9,20 +9,19 @@ import {
   StatNumber,
   useMediaQuery,
 } from "@chakra-ui/react";
+import { fetchUserState, useAuthContext } from "../store/auth";
 
-interface UserStatsProps {
-  name: string;
-  username: string;
-  description: string;
-  tags: string[];
-}
-
-interface Props {
-  stats: UserStatsProps;
-}
-
-const UserStatsCard: React.FC<Props> = (props) => {
+const UserStatsCard: React.FC = () => {
   const [row] = useMediaQuery("(min-width: 320px)");
+
+  const [state, dispatch] = useAuthContext();
+  const stats = state.stats;
+
+  useEffect(() => {
+    fetchUserState(state.username, dispatch, state.token);
+  }, []);
+
+  if (!stats) return null;
 
   return (
     <Center py={3}>
@@ -39,7 +38,7 @@ const UserStatsCard: React.FC<Props> = (props) => {
           <Stack direction={row ? "row" : "column"}>
             <Stat align="center" pt="5" px={4}>
               <StatLabel>Posts</StatLabel>
-              <StatNumber>5</StatNumber>
+              <StatNumber>{stats.data.posts}</StatNumber>
             </Stat>
             <Stat
               align="center"
@@ -51,14 +50,14 @@ const UserStatsCard: React.FC<Props> = (props) => {
                 <b>Friends</b>
               </StatLabel>
               <StatNumber fontSize="3xl" mt={-2} mb={1}>
-                67
+                {stats.data.friends}
               </StatNumber>
             </Stat>
             <Stat align="center" pt="5" px={4}>
               <StatLabel>
                 <b>Hands</b>
               </StatLabel>
-              <StatNumber>23</StatNumber>
+              <StatNumber>{stats.data.hands}</StatNumber>
             </Stat>
           </Stack>
         </StatGroup>

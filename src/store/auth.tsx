@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useReducer, useState } from "react";
+import React, { createContext, useReducer } from "react";
 import produce from "immer";
 import { useContext } from "react";
 import { AUTH_ACTIONS, Dispatch } from "./types";
@@ -24,6 +24,14 @@ export const initialState: any = getState() || {
   token: "",
   refresh_token: "",
   bio: "",
+  stats: {
+    loading: false,
+    data: {
+      friends: 0,
+      posts: 0,
+      hands: 0,
+    },
+  },
 };
 
 const AuthContext = createContext(initialState);
@@ -87,16 +95,27 @@ const authReducer = (state: any, action: Dispatch) => {
       };
       state.loading = false;
       break;
+    case AUTH_ACTIONS.FETCH_USER_STATS:
+      state.stats.loading = true;
+      break;
+    case AUTH_ACTIONS.FETCH_USER_STATS_SUCCESS:
+      state.stats.loading = false;
+      state.stats.data = action.payload;
+      break;
+    case AUTH_ACTIONS.FETCH_USER_STATS_ERROR:
+      state.stats.loading = false;
+      state.stats.data = {
+        friends: "🤔",
+        posts: "🤔",
+        hands: "🤔",
+      };
+      break;
   }
   console.log(action);
 };
 
 const AuthStoreProvider: React.FC<any> = (props) => {
   const [state, dispatch] = useReducer(produce(authReducer), initialState);
-
-  // useEffect(() => {
-  //   localStorage.setItem("p:auth", JSON.stringify(state));
-  // }, [state]);
 
   return (
     <AuthContext.Provider value={[state, dispatch]}>
@@ -247,4 +266,23 @@ export const signup = async (
       payload: { field: "form", message: "Signup failed." },
     });
   }
+};
+
+export const fetchUserState = async (
+  username: string,
+  dispatch: (obj: Dispatch) => void,
+  token: any
+) => {
+  return AuthController.fetchUserStats(username, token)
+    .then((stats) => {
+      dispatch({
+        type: AUTH_ACTIONS.FETCH_USER_STATS_SUCCESS,
+        payload: stats,
+      });
+    })
+    .catch((err) =>
+      dispatch({
+        type: AUTH_ACTIONS.FETCH_USER_STATS_ERROR,
+      })
+    );
 };

@@ -71,6 +71,36 @@ class AuthController {
       return Promise.reject(err);
     }
   }
+
+  async fetchUserStats(username: string, token: string) {
+    const config = {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    };
+    try {
+      const handsCountQuery = `SELECT COUNT(id) as hands FROM ${process.env.NODE_ENV}.post_messages WHERE owner = "${username}"`;
+      const friendsCountQuery = `SELECT COUNT(id) as friends FROM ${process.env.NODE_ENV}.post_messages WHERE owner = "${username}"`;
+      const postsCountQuery = `SELECT COUNT(id) as posts FROM ${process.env.NODE_ENV}.posts WHERE username = "${username}"`;
+
+      const data = await Promise.all([
+        db.executeSQLQuery(handsCountQuery, config),
+        db.executeSQLQuery(friendsCountQuery, config),
+        db.executeSQLQuery(postsCountQuery, config),
+      ]);
+
+      const [handsCountData, friendsCountData, postsCountData] = data;
+      const obj = {
+        hands: handsCountData.data[0].hands,
+        friends: friendsCountData.data[0].friends,
+        posts: postsCountData.data[0].posts,
+      };
+      return obj;
+    } catch (err) {
+      console.log(err.message);
+      Promise.reject(err);
+    }
+  }
 }
 
 export default new AuthController();

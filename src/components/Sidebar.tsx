@@ -22,15 +22,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     <Box p={[6, 6, 6, 4]}>
       <UserNotificationCard user={user} />
       <UserProfileCard user={user} />
-      <UserStatsCard
-        stats={{
-          name: "Lindsey James",
-          username: "@lindsey_jam3s",
-          description:
-            "Actress, musician, songwriter and artist. PM for work inquires or #tag me in your posts",
-          tags: ["art", "photography", "music"],
-        }}
-      />
+      <UserStatsCard />
     </Box>
   );
 };
