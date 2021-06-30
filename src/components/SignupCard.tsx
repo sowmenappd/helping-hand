@@ -6,20 +6,21 @@ import {
   Button,
   Text,
   Link,
+  useToast,
 } from "@chakra-ui/react";
 import React from "react";
-import { signup } from "../store/auth";
+import { signup, useAuthContext } from "../store/auth";
 import { AUTH_ACTIONS } from "../store/types";
 import ImageUploader from "./ImageUploader";
 
 const SignupCard: React.FC<{
   onActivateLogin: any;
-  state: any;
-  dispatch: any;
 }> = (props) => {
-  const { state, dispatch, onActivateLogin } = props;
+  const { onActivateLogin } = props;
+  const [state, dispatch] = useAuthContext();
   const {
     username,
+    email,
     first_name,
     last_name,
     password,
@@ -29,11 +30,31 @@ const SignupCard: React.FC<{
     error,
   } = state;
 
+  const toast = useToast();
   const handleSignup = async () => {
     signup(
-      { username, password, confirm_password, first_name, last_name, imgB64 },
+      {
+        username,
+        email,
+        password,
+        confirm_password,
+        first_name,
+        last_name,
+        imgB64,
+      },
       dispatch,
-      () => {}
+      () => {
+        toast({
+          title: "Account creation successful.",
+          description:
+            "Your account has been created. You can now login with your username and password.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "bottom",
+        });
+        onActivateLogin();
+      }
     );
   };
 
@@ -68,45 +89,69 @@ const SignupCard: React.FC<{
       <Box as={"form"} mt={10}>
         <Stack spacing={4}>
           <Input
+            isRequired
             placeholder="First name"
             bg={"gray.100"}
-            border={0}
+            borderWidth={error.first_name ? 2 : 0}
+            borderColor={error.first_name ? "red.400" : "white"}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: { field: "first_name", value: e.currentTarget.value },
               })
             }
           />
           <Input
+            isRequired
             placeholder="Last name"
             bg={"gray.100"}
-            border={0}
+            borderWidth={error.last_name ? 2 : 0}
+            borderColor={error.last_name ? "red.400" : "white"}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: { field: "last_name", value: e.currentTarget.value },
               })
             }
           />
           <Input
-            placeholder="Username"
+            isRequired
+            placeholder="Email"
+            type="email"
             bg={"gray.100"}
-            border={0}
+            borderWidth={error.email ? 2 : 0}
+            borderColor={error.email ? "red.400" : "white"}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
+                type: AUTH_ACTIONS.FIELD,
+                payload: { field: "email", value: e.currentTarget.value },
+              })
+            }
+          />
+          <Input
+            isRequired
+            placeholder="Username (can contain only alphabets and numbers)"
+            bg={"gray.100"}
+            borderWidth={error.username ? 2 : 0}
+            borderColor={error.username ? "red.400" : "white"}
+            color={"gray.500"}
+            _placeholder={{
+              color: "gray.500",
+            }}
+            onChange={(e) =>
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: { field: "username", value: e.currentTarget.value },
               })
@@ -114,15 +159,18 @@ const SignupCard: React.FC<{
           />
 
           <Input
+            isRequired
             placeholder="Password"
+            type="password"
             bg={"gray.100"}
-            border={0}
+            borderWidth={error.password ? 2 : 0}
+            borderColor={error.password ? "red.400" : "white"}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: { field: "password", value: e.currentTarget.value },
               })
@@ -130,15 +178,18 @@ const SignupCard: React.FC<{
           />
 
           <Input
+            isRequired
             placeholder="Confirm password"
+            type="password"
             bg={"gray.100"}
-            border={0}
+            borderWidth={error.password ? 2 : 0}
+            borderColor={error.password ? "red.400" : "white"}
             color={"gray.500"}
             _placeholder={{
               color: "gray.500",
             }}
             onChange={(e) =>
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: {
                   field: "confirm_password",
@@ -149,7 +200,7 @@ const SignupCard: React.FC<{
           />
           <ImageUploader
             onImage={(imgB64: string) => {
-              props.dispatch({
+              dispatch({
                 type: AUTH_ACTIONS.FIELD,
                 payload: {
                   field: "imgB64",
@@ -158,9 +209,11 @@ const SignupCard: React.FC<{
               });
             }}
           />
-          <Text color={"red.500"} fontSize={{ base: "sm", sm: "md" }}>
-            {error}
-          </Text>
+          {error && (
+            <Text color={"red.500"} fontSize={{ base: "sm", sm: "md" }}>
+              {error.message || error}
+            </Text>
+          )}
         </Stack>
         <Button
           isLoading={loading}

@@ -60,7 +60,10 @@ const authReducer = (state: any, action: Dispatch) => {
       localStorage.setItem("p:auth", JSON.stringify(state));
       break;
     case AUTH_ACTIONS.LOGIN_FAILED:
-      state.error = action.payload;
+      state.error = {
+        [action.payload.field]: true,
+        message: action.payload.message,
+      };
       state.loading = false;
       break;
     case AUTH_ACTIONS.LOGOUT:
@@ -69,15 +72,19 @@ const authReducer = (state: any, action: Dispatch) => {
 
       break;
     case AUTH_ACTIONS.SIGNUP:
-      state.error = "";
+      state.error = {};
       state.loading = true;
       break;
     case AUTH_ACTIONS.SIGNUP_SUCCESS:
-      state.error = "";
+      state.error = {};
       state.loading = false;
       break;
     case AUTH_ACTIONS.SIGNUP_FAILED:
-      state.error = action.payload;
+      state.error = {
+        ...state.error,
+        [action.payload.field]: true,
+        message: state.error.message || action.payload.message,
+      };
       state.loading = false;
       break;
   }
@@ -139,40 +146,101 @@ export const logout = (dispatch: (obj: Dispatch) => void) => {
 };
 
 export const signup = async (
-  { username, password, confirm_password, first_name, last_name, imgB64 }: any,
-  dispatch: (dispatchObj: Dispatch) => void,
+  {
+    username,
+    email,
+    password,
+    confirm_password,
+    first_name,
+    last_name,
+    imgB64,
+  }: any,
+  dispatch: (action: Dispatch) => void,
   onSuccess: () => void
 ) => {
-  dispatch({ type: AUTH_ACTIONS.SIGNUP });
+  let valid = true;
 
-  if (password != confirm_password) {
-    return dispatch({
+  if (!first_name) {
+    dispatch({
       type: AUTH_ACTIONS.SIGNUP_FAILED,
-      payload: "Passwords do not match.",
+      payload: {
+        field: "first_name",
+        message: "First name cannot be empty.",
+      },
     });
+    valid = false;
+  }
+
+  if (!last_name) {
+    dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: {
+        field: "last_name",
+        message: "Last name cannot be empty.",
+      },
+    });
+    valid = false;
+  }
+
+  if (!email) {
+    dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: {
+        field: "email",
+        message: "A valid email must be provided.",
+      },
+    });
+    valid = false;
   }
 
   if (!username || username.length < 5) {
-    return dispatch({
+    dispatch({
       type: AUTH_ACTIONS.SIGNUP_FAILED,
-      payload: "Username must be at least 5 characters.",
+      payload: {
+        field: "username",
+        message: "Username must be at least 5 characters.",
+      },
     });
+    valid = false;
   }
 
+  if (password.length < 6) {
+    dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: {
+        field: "password",
+        message: "Password must be at least 6 characters in length.",
+      },
+    });
+    valid = false;
+  }
+
+  if (password != confirm_password) {
+    dispatch({
+      type: AUTH_ACTIONS.SIGNUP_FAILED,
+      payload: { field: "password", message: "Passwords do not match." },
+    });
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  dispatch({ type: AUTH_ACTIONS.SIGNUP });
   try {
     await AuthController.signup({
-      first_name,
-      last_name,
+      email,
       username,
       password,
+      first_name,
+      last_name,
       imgB64,
     });
 
     dispatch({
       type: AUTH_ACTIONS.SIGNUP_SUCCESS,
-      payload: "Signup successful!",
+      // payload: "Signup successful!",
     });
-    onSuccess?.();
+    onSuccess();
   } catch (err) {
     console.log(err.message);
     dispatch({

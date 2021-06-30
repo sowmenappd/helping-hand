@@ -10,7 +10,7 @@ class PostController {
       for (let i = 0; i < terms.length; i++) {
         if (terms[i] !== "") {
           sql +=
-            `${attr} LIKE \"%${terms[i]}%\"` +
+            `${attr} LIKE "%${terms[i]}%"` +
             (i === terms.length - 1 ? "" : " OR ");
         }
       }
@@ -39,32 +39,54 @@ class PostController {
       },
     };
 
-    const queryFetchAllowedFriendIds1 = `SELECT user1 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user2=\"${ownUsername}\" AND NOT blocked`;
-    const queryFetchAllowedFriendIds2 = `SELECT user2 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user1=\"${ownUsername}\" AND NOT blocked`;
+    const queryFetchAllowedFriendIds1 = `SELECT user1 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user2="${ownUsername}" AND NOT blocked`;
+    const queryFetchAllowedFriendIds2 = `SELECT user2 as username, friends, blocked FROM ${process.env.NODE_ENV}.connections WHERE user1="${ownUsername}" AND NOT blocked`;
 
     return Promise.all([
       db.executeSQLQuery(queryFetchAllowedFriendIds1, config),
       db.executeSQLQuery(queryFetchAllowedFriendIds2, config),
     ])
-      .then((values: any) => {
+      .then(async (values: any) => {
         const array1 = values[0].data;
         const array2 = values[1].data;
-        const allIdsStringArray = [...array1, ...array2].map(
-          (x) => `"${x.username}"`
-        );
-
+        const combined = [...array1, ...array2];
+        const allIdsStringArray = combined.map((x) => `"${x.username}"`);
         const allIdsString = allIdsStringArray.toString();
 
         const queryFetchAllowedPosts = `
       SELECT DISTINCT
       posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends, connections.blocked 
       FROM ${process.env.NODE_ENV}.posts
-      LEFT JOIN ${process.env.NODE_ENV}.connections
+      FULL OUTER JOIN ${process.env.NODE_ENV}.connections
       ON (connections.user1 = posts.username OR connections.user2 = posts.username) 
-      WHERE posts.type=\"${type}\" AND (username IN (${allIdsString}) AND (connections.user1 = \"${ownUsername}\" OR connections.user2 = \"${ownUsername}\"))
+      WHERE posts.type="${type}" AND 
+        (
+          username IN (${allIdsString}) 
+          AND 
+          (connections.user1 = "${ownUsername}" OR connections.user2 = "${ownUsername}")
+        )
       ORDER BY ${orderBy} ${order}
       ;
       `;
+
+        // posts of strangers
+        const queryFetchDisconnectedPosts = `
+          SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.blocked, connections.friends
+          FROM development.posts
+          INNER JOIN development.connections
+          ON 
+          (connections.user1 != posts.username
+          AND
+          connections.user2 != posts.username)
+          AND NOT connections.blocked AND NOT connections.friends AND posts.username != "${ownUsername}"
+      `;
+
+        const { data: disconnectedPosts } = await db.executeSQLQuery(
+          queryFetchDisconnectedPosts,
+          config
+        );
+
+        console.log("queryFetchAllowedPosts", queryFetchAllowedPosts);
 
         return db
           .executeSQLQuery(queryFetchAllowedPosts, config)
@@ -73,19 +95,26 @@ class PostController {
 
             const queryMyPosts = `
             SELECT id, title, description, tags, username, author, datetimeISO
-            FROM ${process.env.NODE_ENV}.posts WHERE posts.type=\"${type}\" AND username = \"${ownUsername}\" 
+            FROM ${process.env.NODE_ENV}.posts WHERE posts.type="${type}" AND username = "${ownUsername}" 
             `;
 
-            const { data: myPosts } = await db.executeSQLQuery(
+            const { data: myPostsData } = await db.executeSQLQuery(
               queryMyPosts,
               config
             );
-            const transformed = myPosts.map((p: any) => ({
+            const myPosts = myPostsData.map((p: any) => ({
               ...p,
               friends: true,
               blocked: false,
             }));
-            return [...otherPosts, ...transformed];
+
+            const allPosts = [...otherPosts, ...myPosts, ...disconnectedPosts];
+
+            console.log("otherPosts", otherPosts);
+            console.log("myPosts", myPosts);
+            console.log("disconnectedPosts", disconnectedPosts);
+
+            return allPosts;
           });
       })
       .catch((err) => {
@@ -106,7 +135,7 @@ class PostController {
     FROM ${process.env.NODE_ENV}.post_messages 
     FULL OUTER JOIN ${process.env.NODE_ENV}.connections
     ON (connections.user1 = post_messages.owner OR connections.user2 = post_messages.owner)
-    WHERE postId=\"${post.id}\"
+    WHERE postId="${post.id}"
     AND ((connections.user1 = post_messages.owner AND connections.user2 = post_messages.replyTo) OR (connections.user2 = post_messages.owner AND connections.user1 = post_messages.replyTo))
     ORDER BY post_messages.__createdtime__ ASC
     `;
@@ -136,10 +165,10 @@ class PostController {
     FROM ${process.env.NODE_ENV}.post_messages 
     FULL OUTER JOIN ${process.env.NODE_ENV}.connections
     ON ((connections.user1 = post_messages.owner AND connections.user2 = post_messages.replyTo) OR (connections.user2 = post_messages.owner AND connections.user1 = post_messages.replyTo))
-    WHERE postId=\"${post.id}\" 
+    WHERE postId="${post.id}" 
     AND 
-    ((owner=\"${post.username}\" AND replyTo=\"${otherUser}\") 
-    OR (owner=\"${otherUser}\" AND replyTo=\"${post.username}\")) 
+    ((owner="${post.username}" AND replyTo="${otherUser}") 
+    OR (owner="${otherUser}" AND replyTo="${post.username}")) 
     ORDER BY post_messages.__createdtime__ ASC`;
 
     console.log("fetchPostMessagesForParticipatingUserQuery", sqlQuery);

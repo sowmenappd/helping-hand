@@ -15,7 +15,13 @@ class AuthController {
       const res = await db.authenticate({ username, password }, config);
       const { operation_token: token, refresh_token } = res.data;
 
-      const userRes = await db.findBy("users", "username", username, config);
+      const userRes = await db.findBy(
+        process.env.NODE_ENV,
+        "users",
+        "username",
+        username,
+        config
+      );
 
       const userObj = userRes.data[0];
       delete userObj.password;
@@ -26,7 +32,14 @@ class AuthController {
     }
   }
 
-  async signup({ username, password, first_name, last_name, imgB64 }: any) {
+  async signup({
+    email,
+    username,
+    password,
+    first_name,
+    last_name,
+    imgB64,
+  }: any) {
     try {
       await db.createUser({
         username,
@@ -34,6 +47,7 @@ class AuthController {
         first_name,
         last_name,
         imgB64,
+        email,
       });
 
       return Promise.resolve();

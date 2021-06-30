@@ -68,11 +68,7 @@ const AuthModule = () => {
             state={state}
           />
         ) : (
-          <SignupCard
-            onActivateLogin={() => setMode("login")}
-            dispatch={dispatch}
-            state={state}
-          />
+          <SignupCard onActivateLogin={() => setMode("login")} />
         )}
       </Container>
       <AuthScreenBlurComponent

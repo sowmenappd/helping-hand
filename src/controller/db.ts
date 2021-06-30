@@ -28,6 +28,7 @@ class Database {
   }
 
   public async createUser({
+    email,
     username,
     password,
     first_name,
@@ -59,6 +60,7 @@ class Database {
           last_name,
           imgB64,
           username,
+          email,
         },
         {
           auth: {
@@ -112,6 +114,7 @@ class Database {
   }
 
   public async findBy(
+    schema: string,
     table: string,
     key: string,
     value: any,
@@ -122,7 +125,7 @@ class Database {
       "/",
       {
         operation: "search_by_value",
-        schema: "development",
+        schema,
         table,
         search_attribute: key,
         search_value: value,
