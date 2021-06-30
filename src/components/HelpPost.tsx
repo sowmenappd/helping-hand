@@ -154,7 +154,7 @@ const HelpPost: React.FC<any> = (post) => {
             mt={4}
           >
             <PostAuthor
-              hidden={myUsername === username ? false : !post.friends}
+              hidden={hidden}
               imgUrl={author.img}
               name={author.name}
               username={username}

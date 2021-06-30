@@ -2,6 +2,7 @@ import React from "react";
 import { VStack, Heading, Box } from "@chakra-ui/react";
 import SearchSkeleton from "./SearchSkeleton";
 import HelpPost from "./HelpPost";
+import { useAuthContext } from "../store/auth";
 
 const HelpPostSearchResults: React.FC<{
   searchText: string;
@@ -9,6 +10,7 @@ const HelpPostSearchResults: React.FC<{
   results?: any;
 }> = (props) => {
   const { searchText, loading, results } = props;
+  const [{ username: myUsername }, _] = useAuthContext();
 
   console.log("search result", results);
 
@@ -40,7 +42,13 @@ const HelpPostSearchResults: React.FC<{
         {loading ? (
           <SearchSkeleton loading={loading} />
         ) : results ? (
-          results.map((r: any) => <HelpPost key={r.id} {...r} />)
+          results.map((r: any) => (
+            <HelpPost
+              key={r.id}
+              {...r}
+              hidden={r.username === myUsername ? false : !r.friends}
+            />
+          ))
         ) : null}
       </Box>
     </VStack>

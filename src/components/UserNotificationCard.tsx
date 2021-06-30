@@ -5,6 +5,10 @@ import {
   useColorModeValue,
   IconButton,
   Link,
+  Box,
+  Text,
+  AvatarBadge,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   IoMdNotifications as NotificationsIcon,
@@ -55,10 +59,21 @@ const UserNotificationCard: React.FC<Props> = (props) => {
           />
         </Link>
         <Link href="/home/notifications">
-          <IconButton
-            aria-label="notifications"
-            size="lg"
-            rounded="full"
+          {/* <Avatar
+            bg="gray.100"
+            icon={<NotificationsIcon fontSize={28} color="#4267B2" />}
+          >
+            <AvatarBadge
+              borderColor="white"
+              bg="green.200"
+              boxSize="1.5em"
+              padding={1}
+            >
+              1
+            </AvatarBadge>
+          </Avatar> */}
+          <ButtonWithCountBadge
+            count={2}
             icon={<NotificationsIcon fontSize={28} color="#4267B2" />}
           />
         </Link>
@@ -80,6 +95,29 @@ const UserNotificationCard: React.FC<Props> = (props) => {
         </Link>
       </HStack>
     </Center>
+  );
+};
+
+const ButtonWithCountBadge: React.FC<{
+  count: Number;
+  icon: any;
+  badgeTintColor?: string;
+  badgeBorderColor?: string;
+  fontSize?: "sm" | "md" | "lg";
+}> = (props) => {
+  return (
+    <Avatar bg="gray.100" icon={props.icon}>
+      {props.count && (
+        <AvatarBadge
+          borderColor={props.badgeBorderColor || "white"}
+          bg={props.badgeTintColor || "green.200"}
+          boxSize="1.5em"
+          padding={1}
+        >
+          <Text fontSize={props.fontSize || "sm"}>{props.count}</Text>
+        </AvatarBadge>
+      )}
+    </Avatar>
   );
 };
 

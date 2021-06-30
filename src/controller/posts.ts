@@ -236,9 +236,9 @@ class PostController {
 
     console.log("blockedIdsString", blockedIdsString);
 
-    let searchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}")) WHERE posts.type = "help"`;
+    let searchPostsQuery = `SELECT DISTINCT posts.id, title, posts.type, description, tags, username, author, datetimeISO, connections.friends FROM ${process.env.NODE_ENV}.posts LEFT JOIN ${process.env.NODE_ENV}.connections ON ((connections.user1 = posts.username AND connections.user2 = "${ownUsername}") OR (connections.user2 = posts.username AND connections.user1 = "${ownUsername}")) WHERE posts.type = "help" AND `;
     if (blockedIds.length > 0) {
-      searchPostsQuery += ` AND posts.username NOT IN (${blockedIdsString}) AND `;
+      searchPostsQuery += ` posts.username NOT IN (${blockedIdsString}) AND `;
     }
 
     const searchQueryConditions =
