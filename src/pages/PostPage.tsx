@@ -68,16 +68,29 @@ const PostPage: React.FC = () => {
     chatWindow.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeMessageThread]);
 
-  const handleMessageUser = (msg: string, firsTime: boolean) => {
+  const handleMessageUser = async (msg: string, firsTime: boolean) => {
     const senderUsername = username;
     const replyToUsername = username === user1 ? user2 : user1;
-    addPostMessage(
+    await addPostMessage(
       post,
       senderUsername,
       replyToUsername,
       msg,
       firsTime,
       dispatch,
+      token
+    );
+    addNotification(
+      replyToUsername,
+      {
+        type: NOTIFICATION_TYPES.INCOMING_POST_MESSAGE_NOTIFICATION,
+        content: {
+          sentFrom: post.username,
+          postTitle: post.title,
+          message: msg,
+          time: new Date().toISOString(),
+        },
+      },
       token
     );
   };

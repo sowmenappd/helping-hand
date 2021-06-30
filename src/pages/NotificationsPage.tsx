@@ -1,15 +1,17 @@
 import React from "react";
-import { VStack, Box, Heading, Button, Stack } from "@chakra-ui/react";
+import { VStack, Box, Heading, Button } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import {
   readNotification,
   useNotificationsContext,
 } from "../store/notifications";
-import { getRelativeTimestring } from "../util/time";
 import { useAuthContext } from "../store/auth";
 import GraphicNotice from "../components/GraphicNotice";
 
 import svg from "../images/no_notif.svg";
+import AddFriendNotificationCard from "../components/AddFriendNotificationCard";
+import IncomingPostMessageNotificationCard from "../components/IncomingPostMessageNotificationCard";
+import { NOTIFICATION_TYPES } from "../store/types";
 
 const NotificationsPage = () => {
   const [{ token }] = useAuthContext();
@@ -18,6 +20,8 @@ const NotificationsPage = () => {
   const handleNotificationRead = (id: string) => {
     readNotification(id, nDispatch, token);
   };
+
+  const handleViewMessage = () => {};
 
   return (
     <VStack spacing={4} alignItems="flex-start">
@@ -74,18 +78,27 @@ const NotificationsPage = () => {
                   <Box
                     w="full"
                     h="fit-content"
-                    maxH="250px"
                     bg="gray.100"
                     p={6}
                     pl={[4, 6]}
                     key={n.id}
                   >
-                    {n.type == "ADD_FRIEND" && (
-                      <AddFriendNotification
+                    {n.type == NOTIFICATION_TYPES.ADD_FRIEND && (
+                      <AddFriendNotificationCard
                         id={n.id}
                         read={n.read}
                         content={n.content}
                         onRead={handleNotificationRead}
+                      />
+                    )}
+                    {n.type ==
+                      NOTIFICATION_TYPES.INCOMING_POST_MESSAGE_NOTIFICATION && (
+                      <IncomingPostMessageNotificationCard
+                        id={n.id}
+                        read={n.read}
+                        content={n.content}
+                        onRead={handleNotificationRead}
+                        onViewMessage={handleViewMessage}
                       />
                     )}
                   </Box>
@@ -94,56 +107,6 @@ const NotificationsPage = () => {
             )}
         </VStack>
       </Box>
-    </VStack>
-  );
-};
-
-const AddFriendNotification: React.FC<{
-  id: string;
-  read: boolean;
-  content: any;
-  onRead: (id: string) => void;
-}> = (props) => {
-  const { id, read, content } = props;
-  return (
-    <VStack>
-      <Box
-        display="flex"
-        flexDir={["column", "row"]}
-        justifyContent="space-between"
-        alignItems={["flex-end", "center"]}
-        maxH="full"
-        w="full"
-      >
-        <Heading fontSize="2xl">
-          <li>
-            <span style={{ color: "grey" }}>
-              <a href="#">{content.sentFrom}</a>
-            </span>{" "}
-            added you as a friend!
-          </li>
-        </Heading>
-        <Heading fontSize="lg" fontWeight="light" pr={3} color="gray.500">
-          {getRelativeTimestring(content.time)}
-        </Heading>
-      </Box>
-      <Stack
-        display="flex"
-        flexDir="column"
-        alignItems="flex-end"
-        h="50px"
-        w="100%"
-      >
-        <Button
-          size="md"
-          w={["fit-content", "150px"]}
-          variant="ghost"
-          bg="blue.300"
-          onClick={() => props.onRead(id)}
-        >
-          {read ? "Notification read" : "Mark as read"}
-        </Button>
-      </Stack>
     </VStack>
   );
 };
