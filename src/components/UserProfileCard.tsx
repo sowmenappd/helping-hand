@@ -26,7 +26,7 @@ interface Props {
     name: string;
     username: string;
     bio: string;
-    tags: string[];
+    // tags: string[];
     imgB64: string;
   };
 }
@@ -71,7 +71,7 @@ const UserProfileCard: React.FC<Props> = (props) => {
           {props.user.bio}
         </Text>
 
-        <Stack direction={"row"} mt={6}>
+        {/* <Stack direction={"row"} mt={6}>
           <Box>
             {props.user.tags.map((t, i) => {
               return (
@@ -89,7 +89,7 @@ const UserProfileCard: React.FC<Props> = (props) => {
               );
             })}
           </Box>
-        </Stack>
+        </Stack> */}
       </Box>
     </Center>
   );

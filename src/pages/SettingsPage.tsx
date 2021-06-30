@@ -27,6 +27,8 @@ import { logout, useAuthContext } from "../store/auth";
 import { AUTH_ACTIONS } from "../store/types";
 
 import authController from "../controller/auth";
+import { getBase64 } from "../util/image_converter";
+import ImageUploader from "../components/ImageUploader";
 
 const SettingsPage = () => {
   const [disabled, setEditable] = useState(true);
@@ -36,17 +38,16 @@ const SettingsPage = () => {
 
   const [state, dispatch] = useAuthContext();
   const { first_name, last_name, bio, username, imgB64, id } = state;
-  const changeable = { first_name, last_name, bio };
+  const changeable = { first_name, last_name, bio, imgB64 };
   const [edittedState, setEdits] = useState(changeable) as any;
 
   console.log("state", state);
 
   const handleFieldEdit = (field: string, value: string) => {
-    if (field === "tags") {
-    } else setEdits({ ...edittedState, [field]: value });
-    console.log(field, value);
-
+    setEdits({ ...edittedState, [field]: value });
     setChanged(true);
+
+    console.log(field, value);
   };
 
   const updateProfile = async (id: string) => {
@@ -83,7 +84,7 @@ const SettingsPage = () => {
         position: "top-right",
       });
     } finally {
-      setEdits({ first_name, last_name, bio });
+      setEdits({ first_name, last_name, bio, imgB64 });
     }
   };
 
@@ -120,6 +121,8 @@ const SettingsPage = () => {
             Settings
             <Text
               color="blue.300"
+              fontSize="4xl"
+              ml={3}
               textDecorationLine="underline"
               _hover={{
                 cursor: "pointer",
@@ -163,7 +166,11 @@ const SettingsPage = () => {
                 disabled={true}
                 small
               />
-              <SettingsPhotoField img={imgB64} />
+              <SettingsPhotoField
+                img={edittedState.imgB64}
+                isDisabled={disabled}
+                onChange={handleFieldEdit}
+              />
             </Stack>
 
             <Stack direction={["column", "column", "row"]} px={2} pt={4}>
@@ -256,19 +263,18 @@ const SettingsInputField: React.FC<{
         {props.labelDisplay}
       </Text>
       {props.textArea ? (
-        <>
-          <Textarea
-            variant="filled"
-            placeholder={props.placeholder}
-            value={props.value}
-            isDisabled={props.disabled}
-            size="lg"
-            fontSize="xl"
-            onChange={({ currentTarget: { value } }) =>
-              props.onChange?.(props.label, value)
-            }
-          />
-        </>
+        <Textarea
+          variant="filled"
+          placeholder={props.placeholder}
+          value={props.value}
+          isDisabled={props.disabled}
+          fontSize="xl"
+          h="120px"
+          noOfLines={6}
+          onChange={({ currentTarget: { value } }) =>
+            props.onChange?.(props.label, value)
+          }
+        />
       ) : (
         <Input
           variant="filled"
@@ -287,7 +293,12 @@ const SettingsInputField: React.FC<{
   );
 };
 
-const SettingsPhotoField: React.FC<{ img: any }> = (props) => {
+const SettingsPhotoField: React.FC<{
+  isDisabled: boolean;
+  img: any;
+  onChange: any;
+}> = (props) => {
+  const [imageChanged, setImageChanged] = useState(false);
   return (
     <HStack
       maxW="full"
@@ -299,11 +310,15 @@ const SettingsPhotoField: React.FC<{ img: any }> = (props) => {
     >
       <Box display="flex" flexDir="column" alignItems="center">
         <Avatar src={props.img} size={"lg"} alt={"Avatar"} mb={2} />
-        <Link href="/">
-          <Button size="xs" colorScheme="linkedin">
-            Change
-          </Button>
-        </Link>
+        <ImageUploader
+          showImage={false}
+          imgB64={props.img}
+          buttonText={imageChanged ? "Photo selected" : "Upload picture"}
+          onImage={(imgB64: string) => {
+            setImageChanged(true);
+            props.onChange?.("imgB64", imgB64);
+          }}
+        />
       </Box>
     </HStack>
   );

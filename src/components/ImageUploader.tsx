@@ -1,17 +1,20 @@
 import React, { useState } from "react";
-import { Box, Input, Image } from "@chakra-ui/react";
+import { Box, Input, Image, Button } from "@chakra-ui/react";
 import { getBase64 } from "../util/image_converter";
 
-const ImageUploader = (props: { onImage: (imgB64: string) => void }) => {
-  const [imageB64, setImage] = useState("");
-
+const ImageUploader = (props: {
+  imgB64: string;
+  showImage: boolean;
+  buttonText?: string;
+  onImage: (imgB64: string) => void;
+}) => {
   const Base64Image = (props: { b64: string }) => {
     return <Image src={props.b64} height="100%" alignItems="center" />;
   };
 
   return (
     <>
-      {imageB64 && (
+      {props.showImage && props.imgB64 && (
         <Box
           display="flex"
           alignItems="center"
@@ -21,21 +24,28 @@ const ImageUploader = (props: { onImage: (imgB64: string) => void }) => {
           rounded="xl"
           px={2}
         >
-          <Base64Image b64={imageB64} />
+          <Base64Image b64={props.imgB64} />
         </Box>
       )}
       <Input
-        fontFamily={"heading"}
-        bg={"gray.200"}
-        color={"gray.800"}
+        id="fileUploader"
         type="file"
-        onChange={async (e) => {
+        style={{ display: "none" }}
+        onChange={(e: any) => {
           getBase64(e.target.files[0], (b64: string) => {
-            setImage(b64);
-            props.onImage(b64);
+            props.onImage?.(b64);
           });
         }}
       />
+      <Button
+        colorScheme="linkedin"
+        onClick={() => {
+          document.getElementById("fileUploader")?.click();
+        }}
+      >
+        {props.buttonText ||
+          (props.imgB64 ? "Photo selected" : "Upload a photo")}
+      </Button>
     </>
   );
 };

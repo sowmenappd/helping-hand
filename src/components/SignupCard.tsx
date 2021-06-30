@@ -6,7 +6,6 @@ import {
   Button,
   Text,
   Link,
-  useToast,
 } from "@chakra-ui/react";
 import React from "react";
 import { signup, useAuthContext } from "../store/auth";
@@ -190,6 +189,8 @@ const SignupCard: React.FC<{
             }
           />
           <ImageUploader
+            showImage={true}
+            imgB64={imgB64}
             onImage={(imgB64: string) => {
               dispatch({
                 type: AUTH_ACTIONS.FIELD,
