@@ -31,6 +31,8 @@ const SettingsPage = () => {
   const [state, dispatch] = useAuthContext();
   const { first_name, last_name, bio, username, imgB64 } = state;
 
+  console.log("state", state);
+
   const handleSignout = () => {
     logout(dispatch);
     history.push("/");
@@ -43,8 +45,9 @@ const SettingsPage = () => {
     <>
       <VStack spacing={4} alignItems="flex-start">
         <Box
-          w={["100%", "100%", "100%", "100%", "4xl"]}
-          maxW={["xl", "xl", "xl", "2xl", "4xl"]}
+          w={["full", "full", "full", "2xl", "4xl"]}
+          // w={["100%", "100%", "100%", "100%", "4xl"]}
+          // maxW={["xl", "xl", "xl", "2xl", "4xl"]}
         >
           <Heading as="h1" fontSize={["4xl", "6xl"]}>
             <span
@@ -95,7 +98,7 @@ const SettingsPage = () => {
               <SettingsInputField
                 label="bio"
                 labelDisplay="Personal biography"
-                placeholder="Loading.."
+                placeholder=""
                 value={bio}
                 disabled={disabled}
                 textArea
@@ -128,13 +131,13 @@ const QuitDialog: React.FC<{
   onSignout: any;
   isOpen: boolean;
 }> = ({ onOpen, onClose, onSignout: onLogout, isOpen }) => {
-  const cancelRef = React.useRef();
+  const cancelRef = React.useRef(null);
 
   return (
     <>
       <AlertDialog
         motionPreset="slideInBottom"
-        leastDestructiveRef={cancelRef as any}
+        leastDestructiveRef={cancelRef}
         onClose={onClose}
         isOpen={isOpen}
         isCentered
@@ -151,7 +154,7 @@ const QuitDialog: React.FC<{
             <b>HelpingHand</b>.
           </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef as any} onClick={onClose}>
+            <Button ref={cancelRef} onClick={onClose}>
               No
             </Button>
             <Button colorScheme="red" ml={3} onClick={onLogout}>

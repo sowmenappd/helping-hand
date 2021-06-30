@@ -7,7 +7,7 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
-  useColorModeValue,
+  useMediaQuery,
 } from "@chakra-ui/react";
 
 interface UserStatsProps {
@@ -22,6 +22,8 @@ interface Props {
 }
 
 const UserStatsCard: React.FC<Props> = (props) => {
+  const [row] = useMediaQuery("(min-width: 320px)");
+
   return (
     <Center py={3}>
       <Box
@@ -34,7 +36,7 @@ const UserStatsCard: React.FC<Props> = (props) => {
         textAlign={"center"}
       >
         <StatGroup>
-          <Stack direction={["column", "row", "row"]}>
+          <Stack direction={row ? "row" : "column"}>
             <Stat align="center" pt="5" px={4}>
               <StatLabel>Posts</StatLabel>
               <StatNumber>5</StatNumber>
