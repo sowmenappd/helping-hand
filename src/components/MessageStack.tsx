@@ -4,7 +4,8 @@ import React from "react";
 export const MessageStack: React.FC<{
   messages: any[];
   username: string;
-}> = ({ messages, username }) => {
+  _ref: any;
+}> = ({ messages, username, _ref }) => {
   return (
     <Box
       display="flex"
@@ -51,6 +52,8 @@ export const MessageStack: React.FC<{
           </Box>
         </Box>
       ))}
+
+      <div ref={_ref} />
     </Box>
   );
 };

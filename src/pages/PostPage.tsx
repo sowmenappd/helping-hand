@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import {
   VStack,
@@ -44,15 +44,13 @@ const isMyFriendsPost = (post: any): boolean => {
 };
 
 const hasMessages = (threadOrAllPostsMessage: any): boolean => {
-  console.log("hasMessages", threadOrAllPostsMessage);
   if (threadOrAllPostsMessage.data)
     return threadOrAllPostsMessage.data?.length > 0;
   return threadOrAllPostsMessage.messages?.length > 0;
-  // &&
-  // threadOrAllPostsMessage.messages.length > 0
 };
 
 const PostPage: React.FC = () => {
+  let chatWindow = useRef(null) as any;
   const history = useHistory();
   const [{ username, token }] = useAuthContext();
   const [
@@ -62,6 +60,10 @@ const PostPage: React.FC = () => {
 
   console.log("activeMessageThread", activeMessageThread);
   const { messages, user1, user2 } = activeMessageThread;
+
+  useEffect(() => {
+    chatWindow.current.scrollIntoView({ behavior: "smooth" });
+  }, [activeMessageThread]);
 
   const handleMessageUser = (msg: string, firsTime: boolean) => {
     const senderUsername = username;
@@ -180,7 +182,11 @@ const PostPage: React.FC = () => {
               />
             )}
             {hasMessages(activeMessageThread) && (
-              <MessageStack username={username} messages={messages} />
+              <MessageStack
+                _ref={chatWindow}
+                username={username}
+                messages={messages}
+              />
             )}
           </Box>
 
