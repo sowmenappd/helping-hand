@@ -29,7 +29,7 @@ export const initialState: any = getState() || {
     data: {
       friends: 0,
       posts: 0,
-      hands: 0,
+      messages: 0,
     },
   },
 };
@@ -107,7 +107,7 @@ const authReducer = (state: any, action: Dispatch) => {
       state.stats.data = {
         friends: "🤔",
         posts: "🤔",
-        hands: "🤔",
+        messages: "🤔",
       };
       break;
   }

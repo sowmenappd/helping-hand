@@ -70,7 +70,7 @@ class AuthController {
 
     try {
       const handsCountQuery = `
-      SELECT DISTINCT COUNT(post_messages.postId) as hands
+      SELECT DISTINCT COUNT(post_messages.postId) as messages
       FROM ${process.env.NODE_ENV}.post_messages
       LEFT JOIN ${process.env.NODE_ENV}.posts
       ON posts.id = post_messages.postId 
@@ -86,7 +86,7 @@ class AuthController {
 
       const [handsCountData, friendsCountData, postsCountData] = data;
       const obj = {
-        hands: handsCountData.data[0].hands,
+        messages: handsCountData.data[0].messages,
         friends: friendsCountData.data[0].friends,
         posts: postsCountData.data[0].posts,
       };

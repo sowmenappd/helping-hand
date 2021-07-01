@@ -55,9 +55,9 @@ const UserStatsCard: React.FC = () => {
             </Stat>
             <Stat align="center" pt="5" px={4}>
               <StatLabel>
-                <b>Hands</b>
+                <b>Messages</b>
               </StatLabel>
-              <StatNumber>{stats.data.hands}</StatNumber>
+              <StatNumber>{stats.data.messages}</StatNumber>
             </Stat>
           </Stack>
         </StatGroup>
