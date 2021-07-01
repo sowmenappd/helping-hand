@@ -7,7 +7,7 @@ const IncomingPostMessageNotificationCard: React.FC<{
   read: boolean;
   content: any;
   onRead: (id: string) => void;
-  onViewMessage: () => void;
+  onViewMessage: (postId: string) => void;
 }> = (props) => {
   const { id, read, content } = props;
   return (
@@ -66,15 +66,15 @@ const IncomingPostMessageNotificationCard: React.FC<{
         alignItems="flex-end"
         px={[3, 6]}
       >
-        <Button
+        {/* <Button
           size="md"
           colorScheme="green"
           isFullWidth
           color="white"
-          onClick={() => props.onViewMessage?.()}
+          onClick={() => props.onViewMessage?.(props.content.postId)}
         >
           View message
-        </Button>
+        </Button> */}
         <Button
           size="md"
           isFullWidth

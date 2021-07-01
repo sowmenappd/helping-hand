@@ -5,6 +5,10 @@ import { App } from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as serviceWorker from "./serviceWorker";
 
+if (process.env.NODE_ENV === "production") {
+  console.log = () => {};
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <ColorModeScript />

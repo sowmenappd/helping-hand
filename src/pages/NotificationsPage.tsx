@@ -1,6 +1,6 @@
 import React from "react";
 import { VStack, Box, Heading, Button } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
   readNotification,
   useNotificationsContext,
@@ -12,16 +12,31 @@ import svg from "../images/no_notif.svg";
 import AddFriendNotificationCard from "../components/AddFriendNotificationCard";
 import IncomingPostMessageNotificationCard from "../components/IncomingPostMessageNotificationCard";
 import { NOTIFICATION_TYPES } from "../store/types";
+import { fetchPosts, usePostsContext, viewPost } from "../store/posts";
 
 const NotificationsPage = () => {
+  const history = useHistory();
   const [{ username, token }] = useAuthContext();
+  const [{ posts }, pDispatch] = usePostsContext();
   const [notifications, nDispatch] = useNotificationsContext();
 
   const handleNotificationRead = (id: string) => {
     readNotification(id, username, nDispatch, token);
   };
 
-  const handleViewMessage = () => {};
+  // const handleViewMessage = async (postId: string) => {
+  //   console.log(postId);
+  //   await fetchPosts("help", username, pDispatch, token);
+  //   console.log(posts.data);
+  //   const post = posts.data.find((p: any) => p.id === postId);
+  //   viewPost(
+  //     post,
+  //     post.username === username ? null : username,
+  //     pDispatch,
+  //     token
+  //   );
+  //   history.push(`/home/post/${postId}`);
+  // };
 
   return (
     <VStack spacing={4} alignItems="flex-start">
@@ -98,7 +113,7 @@ const NotificationsPage = () => {
                         read={n.read}
                         content={n.content}
                         onRead={handleNotificationRead}
-                        onViewMessage={handleViewMessage}
+                        onViewMessage={(id) => null}
                       />
                     )}
                   </Box>
