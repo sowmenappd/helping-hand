@@ -37,7 +37,7 @@ const AuthModule = () => {
               Helping{" "}
             </Text>
             <br />
-            <div style={{ zIndex: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", zIndex: 10 }}>
               <Text
                 as="span"
                 bgGradient="linear(to-r, red.400,pink.400)"
@@ -46,7 +46,7 @@ const AuthModule = () => {
               >
                 Hand
               </Text>{" "}
-              <span>👋</span>
+              <Text fontSize="5xl">👋</Text>
             </div>
           </Heading>
           <Heading

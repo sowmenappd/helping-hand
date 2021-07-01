@@ -30,9 +30,9 @@ class PostController {
   }
 
   public async getBlockedUsernamesForUser(ownUsername: string, config: any) {
-    const getBlocksQuery1 = `SELECT user2 as username FROM development.connections
+    const getBlocksQuery1 = `SELECT user2 as username FROM ${process.env.NODE_ENV}.connections
     WHERE user1 = "${ownUsername}" AND blocked`;
-    const getBlocksQuery2 = `SELECT user1 as username FROM development.connections
+    const getBlocksQuery2 = `SELECT user1 as username FROM ${process.env.NODE_ENV}.connections
     WHERE user2 = "${ownUsername}" AND blocked`;
     return Promise.all([
       db.executeSQLQuery(getBlocksQuery1, config),
