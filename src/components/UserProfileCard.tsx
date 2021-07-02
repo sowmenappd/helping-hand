@@ -45,13 +45,7 @@ const UserProfileCard: React.FC<Props> = (props) => {
       >
         {props.user.imgB64 ? (
           <Box display="flex" justifyContent="center">
-            <Image
-              src={props.user.imgB64}
-              boxSize="20"
-              w="20"
-              h="20"
-              rounded="50%"
-            />
+            <Image src={props.user.imgB64} w="20" h="20" rounded="50%" />
           </Box>
         ) : (
           <Avatar size={"xl"} alt={props.user.name} mb={4} pos={"relative"} />
