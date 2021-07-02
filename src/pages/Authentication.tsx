@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "../components/Layout";
 
 import AuthModule from "../components/AuthModule";
@@ -8,10 +8,13 @@ import { useAuthContext } from "../store/auth";
 const Authentication = () => {
   const history = useHistory();
 
-  const authState = useAuthContext();
-  if (authState.token) {
-    history.push("/home");
-  }
+  const [authState] = useAuthContext();
+
+  useEffect(() => {
+    if (authState.token) {
+      history.replace("/home");
+    }
+  }, [history.location]);
   return (
     <Layout>
       <AuthModule />
