@@ -75,9 +75,8 @@ const authReducer = (state: any, action: Dispatch) => {
       state.loading = false;
       break;
     case AUTH_ACTIONS.LOGOUT:
-      state = initialState;
       localStorage.setItem("p:auth", "");
-
+      state.token = "";
       break;
     case AUTH_ACTIONS.SIGNUP:
       state.error = {};

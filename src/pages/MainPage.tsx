@@ -28,6 +28,8 @@ export default function Main() {
 const MainView = () => {
   const [authState] = useAuthContext();
 
+  console.log("authState", authState);
+
   return (
     <Stack
       divider={<StackDivider borderColor="gray.200" />}
@@ -35,44 +37,38 @@ const MainView = () => {
       justify="center"
       direction={["column", "column", "row"]}
     >
-      <Router>
-        <Switch>
-          <Route path="/home">
-            {authState.token ? (
-              <Sidebar
-                user={{
-                  name: authState.first_name + " " + authState.last_name,
-                  username: authState.username,
-                  imgB64: authState.imgB64,
-                  bio: authState.bio,
-                  tags: ["Fullstack", "Games", "Books", "React", "Typescript"],
-                }}
-                stats={null}
-              />
-            ) : (
-              <Redirect path="/home" to="/" exact />
-            )}
-          </Route>
-        </Switch>
-      </Router>
+      {authState.token ? (
+        <Sidebar
+          user={{
+            name: authState.first_name + " " + authState.last_name,
+            username: authState.username,
+            imgB64: authState.imgB64,
+            bio: authState.bio,
+            tags: ["Fullstack", "Games", "Books", "React", "Typescript"],
+          }}
+          stats={null}
+        />
+      ) : (
+        <Redirect to="/" />
+      )}
       <Box mt={8} p={[3, 3, 6]} pr={[6]}>
         <Router>
           <Switch>
-            <Route path="/home" exact>
-              <AllPostsPage />
-            </Route>
-            <Redirect path="/home/post" exact to="/home" />
-            <Route path="/home/post/:id" exact>
-              <PostPage />
-            </Route>
-            <Route path="/home/settings" exact>
+            <Route path="/home/settings">
               <SettingsPage />
             </Route>
-            <Route path="/home/messages" exact>
+            <Route path="/home/post/:id">
+              <PostPage />
+            </Route>
+            <Redirect path="/home/post" to="/home" />
+            <Route path="/home/notifications">
+              <NotificationsPage />
+            </Route>
+            <Route path="/home/messages">
               <MessagesPage />
             </Route>
-            <Route path="/home/notifications" exact>
-              <NotificationsPage />
+            <Route path="/home">
+              <AllPostsPage />
             </Route>
           </Switch>
         </Router>

@@ -18,11 +18,11 @@ const Layout = () => {
   return (
     <Router>
       <Switch>
+        <Route path="/home">
+          {auth.token !== "" ? <Main /> : <Redirect to="/" />}
+        </Route>
         <Route path="/" exact>
           <Authentication />
-        </Route>
-        <Route path="/home">
-          {auth.token ? <Main /> : <Redirect to="/" />}
         </Route>
       </Switch>
     </Router>
