@@ -9,6 +9,7 @@ import { makeAuthConfigWithToken } from "../controller/misc";
 import MessageCard from "../components/MessageCard";
 import { usePostsContext, viewPost } from "../store/posts";
 import { useHistory } from "react-router-dom";
+import LoadingBox from "../components/LoadingBox";
 
 const MessagesPage = () => {
   const [{ username, token }] = useAuthContext();
@@ -100,6 +101,7 @@ const MessagesPage = () => {
               </Link>
             </GraphicNotice>
           )}
+          {loading && <LoadingBox />}
           {!loading &&
             posts.map(
               (post: {

@@ -1,5 +1,5 @@
 import React from "react";
-import { VStack, Box, Heading, Button } from "@chakra-ui/react";
+import { VStack, Box, Heading, Button, Spinner } from "@chakra-ui/react";
 import { Link, useHistory } from "react-router-dom";
 import {
   readNotification,
@@ -13,6 +13,7 @@ import AddFriendNotificationCard from "../components/AddFriendNotificationCard";
 import IncomingPostMessageNotificationCard from "../components/IncomingPostMessageNotificationCard";
 import { NOTIFICATION_TYPES } from "../store/types";
 import { fetchPosts, usePostsContext, viewPost } from "../store/posts";
+import LoadingBox from "../components/LoadingBox";
 
 const NotificationsPage = () => {
   const history = useHistory();
@@ -81,6 +82,7 @@ const NotificationsPage = () => {
               </Link>
             </GraphicNotice>
           )}
+          {notifications.loading && <LoadingBox />}
           {!notifications.loading &&
             notifications.data.map(
               (n: {
