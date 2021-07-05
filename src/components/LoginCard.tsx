@@ -19,11 +19,11 @@ const LoginCard: React.FC<{
 }> = (props) => {
   const { state, dispatch, onActivateSignup } = props;
 
-  const { username, password, loading, error } = state;
+  const { username, password, refresh_token, loading, error } = state;
   const history = useHistory();
 
   const handleLogin = async () => {
-    login({ username, password }, dispatch, () => {
+    login({ username, password, refresh_token }, dispatch, () => {
       history.push("/home");
     });
   };

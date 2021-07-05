@@ -4,7 +4,7 @@ import { getCredentialConfig, makeAuthConfigWithToken } from "./misc";
 class AuthController {
   constructor() {}
 
-  async login({ username, password }: any) {
+  async login({ username, password, ref_token }: any) {
     try {
       const config = getCredentialConfig();
 
@@ -24,8 +24,22 @@ class AuthController {
       const finalObj = { ...userObj, token, refresh_token };
       return finalObj;
     } catch (err) {
-      return Promise.reject(err);
+      if (err.status === 403) {
+        // this means we're forbidden which occurs in two cases
+        // 1. we are a logged in user, we need to reauthenticate (token expired)
+        // 2. forbidden as token is wrong (invalid token)
+        if (ref_token) {
+          const res = await this.refreshAuthToken(ref_token);
+          return Promise.resolve();
+        }
+      } else return Promise.reject(err);
     }
+  }
+
+  async refreshAuthToken(ref_token: string) {
+    const config = getCredentialConfig();
+
+    return db.refreshToken(ref_token, config);
   }
 
   async signup({

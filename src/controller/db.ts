@@ -28,6 +28,17 @@ class Database {
     );
   }
 
+  public async refreshToken(refresh_token: string, config: any) {
+    return client.post(
+      "/",
+      {
+        operation: "refresh_operation_token",
+        refresh_token,
+      },
+      config
+    );
+  }
+
   public async createUser({
     email,
     username,

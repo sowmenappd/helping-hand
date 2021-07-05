@@ -132,14 +132,18 @@ export default AuthStoreProvider;
 ////////////////////////////////////////////////////////////
 
 export const login = async (
-  { username, password }: any,
+  { username, password, refresh_token }: any,
   dispatch: (dispatchObj: Dispatch) => void,
   onSuccess: () => void
 ) => {
   try {
     dispatch({ type: AUTH_ACTIONS.LOGIN });
 
-    const res = await AuthController.login({ username, password });
+    const res = await AuthController.login({
+      username,
+      password,
+      refresh_token,
+    });
     dispatch({
       type: AUTH_ACTIONS.LOGIN_SUCCESS,
       payload: {
@@ -148,11 +152,11 @@ export const login = async (
     });
     onSuccess();
   } catch (err) {
-    console.log(err.message);
     dispatch({
       type: AUTH_ACTIONS.LOGIN_FAILED,
       payload: { message: err.message },
     });
+    return Promise.reject(err);
   }
 };
 
