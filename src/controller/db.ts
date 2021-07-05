@@ -144,7 +144,7 @@ class Database {
     value: string,
     config: any
   ): Promise<any> {
-    const query = `DELETE FROM ${schema}.${table} WHERE ${key} = ${value}`;
+    const query = `DELETE FROM ${schema}.${table} WHERE ${key} = "${value}"`;
     return this.executeSQLQuery(query, config);
   }
 }
