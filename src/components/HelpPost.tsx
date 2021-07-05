@@ -137,7 +137,7 @@ const HelpPost: React.FC<any> = (post) => {
             <Link textDecoration="none" _hover={{ textDecoration: "none" }}>
               {title}
             </Link>
-            {myUsername === author && (
+            {myUsername === username && (
               <IconButton
                 aria-label="delete-post"
                 rounded="full"
