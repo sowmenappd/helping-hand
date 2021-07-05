@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { TiArrowForward as ForwardIcon } from "react-icons/ti";
 import { MdReport as ReportIcon } from "react-icons/md";
+import { BsThreeDots as DotsIcon } from "react-icons/bs";
 import { usePostsContext, viewPost } from "../store/posts";
 import { getRelativeTimestring } from "../util/time";
 import { useHistory } from "react-router-dom";
@@ -127,10 +128,26 @@ const HelpPost: React.FC<any> = (post) => {
           justifyContent="center"
           marginTop={{ base: "3", sm: "0" }}
         >
-          <Heading marginTop="1" marginBottom="2">
+          <Heading
+            marginTop="1"
+            marginBottom="2"
+            display="flex"
+            justifyContent="space-between"
+          >
             <Link textDecoration="none" _hover={{ textDecoration: "none" }}>
               {title}
             </Link>
+            {myUsername === author && (
+              <IconButton
+                aria-label="delete-post"
+                rounded="full"
+                color="blackAlpha.700"
+                bgColor="transparent"
+                onClick={() => {}}
+              >
+                <DotsIcon size={24} />
+              </IconButton>
+            )}{" "}
           </Heading>
           <PostTags tags={tags} />
 
