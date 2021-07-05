@@ -302,6 +302,23 @@ export const hideNotifyAlertForPost = (
   });
 };
 
+export const deletePost = async (
+  post: any,
+  dispatch: (action: Dispatch) => void,
+  token: string
+): Promise<any> => {
+  try {
+    const { type, username } = post;
+
+    await PostController.deletePost(post.id, token);
+    fetchPosts(type, username, dispatch, token);
+    hideNotifyAlertForPost(dispatch);
+  } catch (err) {
+    console.log(err.message);
+    return Promise.reject(err);
+  }
+};
+
 export const fetchPostMessages = async (
   post: any,
   dispatch: (action: Dispatch) => void,

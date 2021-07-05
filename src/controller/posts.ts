@@ -216,7 +216,7 @@ class PostController {
 
   public async deletePost(id: string, token: string) {
     const config = makeAuthConfigWithToken(token);
-    return db.deleteOne(process.env.NODE_ENV, "posts", "id", id, config)l
+    return db.deleteOne(process.env.NODE_ENV, "posts", "id", id, config);
   }
 
   public async search(query: string, ownUsername: string, token: string) {

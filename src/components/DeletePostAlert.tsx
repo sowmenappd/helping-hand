@@ -10,8 +10,11 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { hideNotifyAlertForPost, usePostsContext } from "../store/posts";
+import { deletePost as deletePostFunction } from "../store/posts";
+import { useAuthContext } from "../store/auth";
 
 const DeletePostAlert: React.FC = () => {
+  const [{ token }] = useAuthContext();
   const [{ deletePost }, dispatch] = usePostsContext();
 
   const cancelRef = useRef(null);
@@ -49,7 +52,7 @@ const DeletePostAlert: React.FC = () => {
             <Button
               colorScheme="red"
               onClick={() => {
-                hideNotifyAlertForPost(dispatch); // TODO: replace with delete functionality
+                deletePostFunction(deletePost, dispatch, token);
               }}
               disabled={!deletePost}
               ml={3}
