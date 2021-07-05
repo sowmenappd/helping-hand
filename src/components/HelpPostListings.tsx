@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { HStack, VStack, Heading, Button, Box } from "@chakra-ui/react";
 
 import HelpPost from "./HelpPost";
@@ -10,6 +10,7 @@ import NotFoundNotice from "./NotFoundNotice";
 import { useAuthContext } from "../store/auth";
 import GraphicNotice from "./GraphicNotice";
 import empty from "../images/empty.svg";
+import DeletePostAlert from "./DeletePostAlert";
 
 const HelpPostListings: React.FC = (props) => {
   const [authState] = useAuthContext();
@@ -17,6 +18,8 @@ const HelpPostListings: React.FC = (props) => {
   const { posts } = state;
 
   const { data, loading, error } = posts;
+
+  const [showDeleteNotice, setShowDeleteNotice] = useState(false);
 
   useEffect(() => {
     fetchPosts(
@@ -79,6 +82,7 @@ const HelpPostListings: React.FC = (props) => {
                   tags={tags}
                   datetimeISO={datetimeISO}
                   hidden={username === authState.username ? false : !friends}
+                  onDelete={null}
                 />
               );
             }
@@ -91,6 +95,7 @@ const HelpPostListings: React.FC = (props) => {
           />
         )}
       </Box>
+      <DeletePostAlert />
     </VStack>
   );
 };

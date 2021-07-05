@@ -25,6 +25,7 @@ const initialState: any = {
     error: false,
   },
   activeMessageThread: {},
+  deletePost: null,
 };
 
 const PostsContext = createContext(initialState);
@@ -118,6 +119,12 @@ const postsReducer = (state: any, action: Dispatch) => {
       break;
     case POST_ACTIONS.FETCH_POST_MESSAGES_FOR_USER_ERROR:
       // state.activeMessageThread = {};
+      break;
+    case POST_ACTIONS.NOTIFY_DELETE_POST:
+      state.deletePost = action.payload;
+      break;
+    case POST_ACTIONS.HIDE_NOTIFY_DELETE_POST:
+      state.deletePost = null;
       break;
   }
   console.log(action);
@@ -274,6 +281,25 @@ export const fetchPosts = async (
   } catch (err) {
     // console.log(err);
   }
+};
+
+export const notifyDeleteActionForPost = (
+  post: any,
+  dispatch: (action: Dispatch) => void
+) => {
+  if (!post || !post.id) return;
+  dispatch({
+    type: POST_ACTIONS.NOTIFY_DELETE_POST,
+    payload: post,
+  });
+};
+
+export const hideNotifyAlertForPost = (
+  dispatch: (action: Dispatch) => void
+) => {
+  dispatch({
+    type: POST_ACTIONS.HIDE_NOTIFY_DELETE_POST,
+  });
 };
 
 export const fetchPostMessages = async (

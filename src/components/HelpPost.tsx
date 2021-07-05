@@ -16,7 +16,11 @@ import {
 import { TiArrowForward as ForwardIcon } from "react-icons/ti";
 import { MdReport as ReportIcon } from "react-icons/md";
 import { BsThreeDots as DotsIcon } from "react-icons/bs";
-import { usePostsContext, viewPost } from "../store/posts";
+import {
+  notifyDeleteActionForPost,
+  usePostsContext,
+  viewPost,
+} from "../store/posts";
 import { getRelativeTimestring } from "../util/time";
 import { useHistory } from "react-router-dom";
 import { useAuthContext } from "../store/auth";
@@ -143,7 +147,9 @@ const HelpPost: React.FC<any> = (post) => {
                 rounded="full"
                 color="blackAlpha.700"
                 bgColor="transparent"
-                onClick={() => {}}
+                onClick={() => {
+                  notifyDeleteActionForPost(post, dispatch);
+                }}
               >
                 <DotsIcon size={24} />
               </IconButton>
