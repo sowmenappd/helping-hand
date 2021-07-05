@@ -136,6 +136,17 @@ class Database {
       config
     );
   }
+
+  public async deleteOne(
+    schema: string,
+    table: string,
+    key: string,
+    value: string,
+    config: any
+  ): Promise<any> {
+    const query = `DELETE FROM ${schema}.${table} WHERE ${key} = ${value}`;
+    return this.executeSQLQuery(query, config);
+  }
 }
 
 export default new Database();
