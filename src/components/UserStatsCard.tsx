@@ -11,6 +11,10 @@ import {
 } from "@chakra-ui/react";
 import { fetchUserStats, useAuthContext } from "../store/auth";
 
+import { FaUserFriends as FriendsIcon } from "react-icons/fa";
+import { BsFilePost as PostIcon } from "react-icons/bs";
+import { BiMessageCheck as MessagesIcon } from "react-icons/bi";
+
 const UserStatsCard: React.FC = () => {
   const [row] = useMediaQuery("(min-width: 320px)");
 
@@ -24,30 +28,36 @@ const UserStatsCard: React.FC = () => {
   if (!stats) return null;
 
   return (
-    <Center py={3}>
+    <Center py={1}>
       <Box
         maxW={"320px"}
         w={"full"}
         bg={"white"}
         boxShadow={"2xl"}
         rounded={"lg"}
-        p={6}
+        p={3}
         textAlign={"center"}
       >
         <StatGroup>
-          <Stack direction={row ? "row" : "column"}>
+          <Stack
+            direction={row ? "row" : "column"}
+            flex="1"
+            align="flex-start"
+            justify="center"
+          >
             <Stat align="center" pt="5" px={4}>
-              <StatLabel>Posts</StatLabel>
-              <StatNumber>{stats.data.posts}</StatNumber>
+              <PostIcon size={24} />
+              <StatNumber pt={2}>{stats.data.posts}</StatNumber>
             </Stat>
             <Stat
               align="center"
               justifyContent="center"
               bg="gray.100"
               borderRadius="xl"
+              p={2}
             >
-              <StatLabel fontSize="2xl" pt={2} pb={0} mb={-1} px={3}>
-                <b>Friends</b>
+              <StatLabel fontSize="2xl" p={3} pb={0}>
+                <FriendsIcon size={24} />
               </StatLabel>
               <StatNumber fontSize="3xl" mb={1}>
                 {stats.data.friends}
@@ -55,9 +65,9 @@ const UserStatsCard: React.FC = () => {
             </Stat>
             <Stat align="center" pt="5" px={4}>
               <StatLabel>
-                <b>Messages</b>
+                <MessagesIcon size={24} />
               </StatLabel>
-              <StatNumber>{stats.data.messages}</StatNumber>
+              <StatNumber pt={2}>{stats.data.messages}</StatNumber>
             </Stat>
           </Stack>
         </StatGroup>
