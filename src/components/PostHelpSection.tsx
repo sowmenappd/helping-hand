@@ -30,7 +30,6 @@ const PostHelpSection = () => {
   const [state, dispatch] = usePostsContext();
 
   const { currentPost, currentPostsType } = state;
-  const { title, tags, description } = currentPost;
 
   const handleTextFocus = (visible: boolean) => {
     setBtnVisible(visible);
@@ -45,7 +44,7 @@ const PostHelpSection = () => {
           },
         },
       });
-      if (!currentPost.type) {
+      if (!currentPost || !currentPost.type) {
         dispatch({
           type: POST_ACTIONS.SET_POST_TYPE,
           payload: POST_TYPE.HELP,
@@ -100,20 +99,20 @@ const PostHelpSection = () => {
           <span style={{ color: "#272727", opacity: 0.15, paddingRight: 10 }}>
             <b>#</b>
           </span>
-          {!currentPost.type || currentPost.type === POST_TYPE.HELP
+          {!currentPost?.type || currentPost?.type === POST_TYPE.HELP
             ? "Need help?"
             : "What's on your mind?"}
         </Heading>
         <VStack spacing="4" align="start" px={[2, 2, 8]}>
           <Input
-            value={title}
+            value={currentPost?.title}
             onChange={(e) => handleFieldChange("title", e.currentTarget.value)}
             borderWidth="2px"
             placeholder="Add a title"
             onFocus={() => handleTextFocus(true)}
           />
           <Textarea
-            value={description}
+            value={currentPost?.description}
             onChange={(e) =>
               handleFieldChange("description", e.currentTarget.value)
             }
@@ -122,7 +121,7 @@ const PostHelpSection = () => {
             onFocus={() => handleTextFocus(true)}
           />
           <Input
-            value={tags}
+            value={currentPost?.tags}
             onChange={(e) =>
               handleFieldChange(
                 "tags",
@@ -151,7 +150,7 @@ const PostHelpSection = () => {
                 style={{ transition: ".4s ease-in" }}
               >
                 <PostTypeSelector
-                  type={currentPost.type}
+                  type={currentPost?.type || POST_TYPE.HELP}
                   dispatch={(type: string) => {
                     dispatch({
                       type: POST_ACTIONS.EDIT_CURRENT_POST,
@@ -169,8 +168,8 @@ const PostHelpSection = () => {
                 style={{ transition: ".4s ease-in" }}
               >
                 <PostSectionButtonPanel
-                  title={title}
-                  description={description}
+                  title={currentPost?.title}
+                  description={currentPost?.description}
                   onSubmit={handleSubmitPost}
                 />
               </Box>
@@ -191,12 +190,16 @@ const PostSectionButtonPanel: React.FC<{
     <ButtonGroup fontSize={["xl", "5xl"]} spacing={0}>
       <Button
         colorScheme="twitter"
-        // borderRightRadius="0"
         rounded="3xl"
         borderRightWidth="thin"
         borderRightColor="whiteAlpha.100"
         rightIcon={<DoneIcon size={20} />}
-        disabled={props.title?.length < 4 || props.description?.length < 6}
+        disabled={
+          !props.title ||
+          !props.description ||
+          props.title?.length < 4 ||
+          props.description?.length < 6
+        }
         onClick={props.onSubmit}
       >
         Post

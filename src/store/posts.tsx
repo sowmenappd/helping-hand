@@ -15,7 +15,7 @@ const initialState: any = {
     loading: true,
     error: false,
   },
-  currentPost: {},
+  currentPost: null,
   currentPostsType: POST_TYPE.HELP,
   isViewingPost: false,
   viewPost: null,
@@ -36,23 +36,30 @@ export const usePostsContext = () => {
 const postsReducer = (state: any, action: Dispatch) => {
   switch (action.type) {
     case POST_ACTIONS.SET_POST_AUTHOR:
+      state.currentPost = { ...state.currentPost };
       state.currentPost.username = action.payload.username;
       state.currentPost.author = action.payload.author;
       console.log(state.currentPost);
       break;
     case POST_ACTIONS.SET_POST_TYPE:
+      state.currentPost = { ...state.currentPost };
       state.currentPost.type = action.payload;
       break;
     case POST_ACTIONS.ADD_POST:
       state.currentPost.datetimeISO = new Date().toISOString();
+      state.currentPost.tags = state.currentPost.tags?.filter(
+        (t: string) => t.trim() !== ""
+      );
       state.posts.loading = true;
       break;
     case POST_ACTIONS.ADD_POST_SUCCESS:
-      state.currentPost = {};
+      state.currentPostsType = POST_TYPE.HELP;
+      state.currentPost = null;
       state.posts.loading = false;
       break;
     case POST_ACTIONS.ADD_POST_ERROR:
-      state.currentPost = {};
+      state.currentPostsType = state.currentPost.type;
+      state.currentPost = null;
       state.posts.loading = false;
       break;
     case POST_ACTIONS.EDIT_CURRENT_POST:
@@ -159,12 +166,13 @@ export const addPost = async (
   dispatch({
     type: POST_ACTIONS.ADD_POST,
   });
+  const _type = type;
   try {
     await PostController.addPost(post, token);
     dispatch({
       type: POST_ACTIONS.ADD_POST_SUCCESS,
     });
-    fetchPosts(type, post.username, dispatch, token);
+    fetchPosts(_type, post.username, dispatch, token);
   } catch (err) {
     dispatch({
       type: POST_ACTIONS.ADD_POST_ERROR,
@@ -308,10 +316,10 @@ export const deletePost = async (
   token: string
 ): Promise<any> => {
   try {
-    const { type, username } = post;
+    const { username } = post;
 
     await PostController.deletePost(post.id, token);
-    fetchPosts(type, username, dispatch, token);
+    fetchPosts("help", username, dispatch, token);
     hideNotifyAlertForPost(dispatch);
   } catch (err) {
     console.log(err.message);
