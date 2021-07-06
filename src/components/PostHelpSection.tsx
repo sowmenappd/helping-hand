@@ -29,7 +29,7 @@ const PostHelpSection = () => {
     useAuthContext();
   const [state, dispatch] = usePostsContext();
 
-  const { currentPost, currentPostsType } = state;
+  const { currentPost } = state;
 
   const handleTextFocus = (visible: boolean) => {
     setBtnVisible(visible);
@@ -105,14 +105,14 @@ const PostHelpSection = () => {
         </Heading>
         <VStack spacing="4" align="start" px={[2, 2, 8]}>
           <Input
-            value={currentPost?.title}
+            value={currentPost?.title || ""}
             onChange={(e) => handleFieldChange("title", e.currentTarget.value)}
             borderWidth="2px"
             placeholder="Add a title"
             onFocus={() => handleTextFocus(true)}
           />
           <Textarea
-            value={currentPost?.description}
+            value={currentPost?.description || ""}
             onChange={(e) =>
               handleFieldChange("description", e.currentTarget.value)
             }
